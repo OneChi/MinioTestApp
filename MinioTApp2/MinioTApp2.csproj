@@ -168,10 +168,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\Generic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
@@ -193,6 +189,9 @@
     <SDKReference Include="Microsoft.VCLibs.Desktop, Version=14.0">
       <Name>Visual C++ 2015 UWP Desktop Runtime for native apps</Name>
     </SDKReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Themes\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
