@@ -1,24 +1,24 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-// Общие сведения о сборке можно задать с помощью следующего 
-// атрибутов. Отредактируйте значения этих атрибутов, чтобы изменить
-// сведений о сборке.
-[assembly: AssemblyTitle("MinioTApp2")]
+// Общие сведения об этой сборке предоставляются следующим набором 
+// набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
+// связанные со сборкой.
+[assembly: AssemblyTitle("MinioTApp2.ViewModel")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MinioTApp2")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyProduct("MinioTApp2.ViewModel")]
+[assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-// Сведения о версии сборки состоят из следующих четырех значений:
+// Сведения о версии для сборки состоят из следующих четырех значений:
 //
 //      Основной номер версии
 //      Дополнительный номер версии 
-//   Номер сборки
-//      Редакция
+//      Номер сборки
+//      Номер редакции
 //
 // Можно задать все значения или принять номера сборки и редакции по умолчанию 
 // используя "*", как показано ниже:

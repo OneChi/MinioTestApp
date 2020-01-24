@@ -5,15 +5,13 @@
     xmlns:local="using:MinioTApp2.Resources.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:bucket="using:MinioTApp2.Resources.Classes"
-    
-    mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
+    xmlns:bucket="using:MinioTApp2.Model.Models"
+    mc:Ignorable="d">
 
-    <Grid>
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+
         <ListView x:Name="ListViewOut" DoubleTapped="ListViewOut_DoubleTapped" SelectionChanged="ListViewOut_SelectionChanged" 
-        SelectionMode="Single">
+        SelectionMode="Single" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <ListView.ItemTemplate >
                 <DataTemplate  x:DataType="bucket:Buckets">
                     <Grid>
@@ -51,5 +49,7 @@
             </ListView.ItemTemplate>
 
         </ListView>
+        <TextBlock Text="TextBlock" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="68,0,44,0"/>
+
     </Grid>
 </UserControl>

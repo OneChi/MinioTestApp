@@ -1,22 +1,11 @@
 ﻿using Minio;
 using Minio.DataModel;
-using MinioTApp2.Resources.Classes;
+using MinioTApp2.Model.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 // Документацию по шаблону элемента "Пользовательский элемент управления" см. по адресу https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -84,8 +73,6 @@ namespace MinioTApp2.Resources.Pages
 
         private void ListViewOut_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            var buvket = sender as Buckets;
-            focus_1 = buvket;
 
         }
 
