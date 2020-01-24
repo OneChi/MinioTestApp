@@ -11,7 +11,7 @@
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
 
         <ListView x:Name="ListViewOut" DoubleTapped="ListViewOut_DoubleTapped" SelectionChanged="ListViewOut_SelectionChanged" 
-        SelectionMode="Single" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        SelectionMode="Single" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding buckets}" SelectedItem="{Binding SelectedBucket,Mode=TwoWay}">
             <ListView.ItemTemplate >
                 <DataTemplate  x:DataType="bucket:Buckets">
                     <Grid>
@@ -49,7 +49,6 @@
             </ListView.ItemTemplate>
 
         </ListView>
-        <TextBlock Text="TextBlock" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="68,0,44,0"/>
-
+        <TextBlock DataContext="{Binding SelectedBucket}"  Text="{Binding BucketName, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="68,0,44,0"/>
     </Grid>
 </UserControl>
