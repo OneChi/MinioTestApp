@@ -10,28 +10,29 @@ using MinioTApp2.Model.Models;
 
 namespace MinioTApp2.Repository.Repository
 {
-    class MinioRepository
+    public class MinioRepository
     {
 
 
         // Initialize the client with access credentials.
         private static MinioClient minio;
 
-        public ObservableCollection<Buckets> buckets { get; set; }
+        //public ObservableCollection<Buckets> buckets { get; set; }
 
 
 
         public MinioRepository()
         {
-            minio = new MinioClient(
-         /*minio server ip =*/                      "83.149.198.59:9000",
-         /*minio server open key/ login =*/         "minio",
-        /*minio server secret key/ password =*/    "miniominio");
+            // TODO: Set Login and Password to access to minio
+            LoadMinio();
+        }
 
+        // Returns ObservableCollection of "Buckets"(MinioTApp2.Models.Models.Buckets) which stored on remote server
+        public ObservableCollection<Buckets> getListBuckets() {
+            ObservableCollection<Buckets> buckets = new ObservableCollection<Buckets>();
 
-            // вызываю в отдельном потоке функцию
+            // Start function in other thread
             var getListBucketsTask = minio.ListBucketsAsync();
-
             // Create an async task for listing buckets.
             try
             {
@@ -41,25 +42,29 @@ namespace MinioTApp2.Repository.Repository
             {
                 aggEx.Handle(HandleBatchExceptions);
             }
-
-            buckets = new ObservableCollection<Buckets>();
             //Iterate over the list of buckets.
             foreach (Bucket bucketObj in getListBucketsTask.Result.Buckets)
             {
-                //Console.WriteLine(bucketObj.Name + " " + bucketObj.CreationDateDateTime);
                 buckets.Add(new Buckets(bucketObj.Name, bucketObj.CreationDate));
             }
+            return buckets;
+        } 
+
+        
 
 
+        public static void LoadMinio() 
+        {
+            /*minio server ip =*/
+            var MinioServerAddres = "83.149.198.59:9000";
+            /*minio server open key/ login =*/
+            var MinioLogin = "minio";
+            /*minio server secret key/ password =*/
+            var MinioPassword = "miniominio";
+            // set up minio client
+            minio = new MinioClient(MinioServerAddres,MinioLogin,MinioPassword);
         }
-
-
-
-
-
-
-
-
+        // HANDLING EXCEPTIONS
         private static bool HandleBatchExceptions(Exception exceptionToHandle)
         {
             if (exceptionToHandle is ArgumentNullException)

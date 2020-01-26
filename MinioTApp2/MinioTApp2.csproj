@@ -129,6 +129,8 @@
     <Compile Include="Resources\Pages\ViewerPage.xaml.cs">
       <DependentUpon>ViewerPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Resources\ViewModels\MainWindowVM.cs" />
+    <Compile Include="Resources\ViewModels\ViewPageVM.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -182,6 +184,9 @@
     <PackageReference Include="Minio">
       <Version>3.1.9</Version>
     </PackageReference>
+    <PackageReference Include="Prism.Core">
+      <Version>7.2.0.1422</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <SDKReference Include="Microsoft.VCLibs.Desktop, Version=14.0">
@@ -199,10 +204,6 @@
     <ProjectReference Include="..\MinioTApp2.Repository\MinioTApp2.Repository.csproj">
       <Project>{7f728a0b-c340-40c6-a987-f41b6877973d}</Project>
       <Name>MinioTApp2.Repository</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MinioTApp2.ViewModel\MinioTApp2.ViewModel.csproj">
-      <Project>{dd89be7d-eb32-4122-a256-e3bac2718e7f}</Project>
-      <Name>MinioTApp2.ViewModel</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

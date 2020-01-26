@@ -49,7 +49,7 @@
             </ListView.ItemTemplate>
 
         </ListView>
-        <Button Width="106" Height="101" HorizontalAlignment="Center" Command="{Binding ButtonClickTest}" VerticalAlignment="Bottom" Margin="0,0,0,40" ></Button>
+        <Button Width="106" Height="101" HorizontalAlignment="Center" Command="{Binding ButtonClickTest}" VerticalAlignment="Bottom" Margin="0,0,0,40" FontSize="16" >Refresh</Button>
         <TextBlock  DataContext="{Binding SelectedBucket}"  Text="{Binding BucketName, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="68,0,44,0"/>
     </Grid>
 </UserControl>

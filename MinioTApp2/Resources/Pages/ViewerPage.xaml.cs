@@ -35,7 +35,7 @@ namespace MinioTApp2.Resources.Pages
 
         private void ListViewOut_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var bucket = e.AddedItems[0] as Buckets;
+           // var bucket = e.AddedItems[0] as Buckets;
            //focus_1 = bucket;
 
             //TestOut.Text = bucket.Name;

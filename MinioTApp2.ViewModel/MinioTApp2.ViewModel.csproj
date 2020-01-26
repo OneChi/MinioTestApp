@@ -121,8 +121,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ViewModels\MainWindowVM.cs" />
-    <Compile Include="ViewModels\ViewPageVM.cs" />
     <EmbeddedResource Include="Properties\MinioTApp2.ViewModel.rd.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -144,6 +142,9 @@
       <Project>{F1720BFA-7DC6-40C0-8E08-F84E32EC0F66}</Project>
       <Name>MinioTApp2.Model</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ViewModels\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
