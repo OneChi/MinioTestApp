@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MinioTApp2.ViewModel.ViewModels;
+using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
@@ -12,6 +13,20 @@ namespace MinioTApp2
     /// </summary>
     sealed partial class App : Application
     {
+        /// <summary>
+        /// Gets the app-wide MainViewModel singleton instance.
+        /// </summary>
+        public static MainWindowVM ViewModel { get; } = new MainWindowVM();
+
+        /// <summary>
+        /// Pipeline for interacting with backend service or database.
+        /// </summary>
+        //public static MinioRepository Repository { get; private set; }
+
+
+
+
+
         /// <summary>
         /// Инициализирует одноэлементный объект приложения. Это первая выполняемая строка разрабатываемого
         /// кода, поэтому она является логическим эквивалентом main() или WinMain().

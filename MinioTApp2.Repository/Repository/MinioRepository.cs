@@ -1,42 +1,34 @@
-﻿using MinioTApp2.Model.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Minio;
 using Minio.DataModel;
-using Prism.Mvvm;
-using Prism.Commands;
+using MinioTApp2.Model.Models;
 
-
-namespace MinioTApp2.ViewModel.ViewModels
+namespace MinioTApp2.Repository.Repository
 {
-    public class ViewPageVM : BindableBase
+    class MinioRepository
     {
+
 
         // Initialize the client with access credentials.
         private static MinioClient minio;
 
         public ObservableCollection<Buckets> buckets { get; set; }
 
-        public DelegateCommand<string> ButtonClickTest  { get; }
 
 
-    public ViewPageVM() {
-
+        public MinioRepository()
+        {
             minio = new MinioClient(
-           /*minio server ip =*/                      "83.149.198.59:9000",
-           /*minio server open key/ login =*/         "minio",
-          /*minio server secret key/ password =*/    "miniominio");
+         /*minio server ip =*/                      "83.149.198.59:9000",
+         /*minio server open key/ login =*/         "minio",
+        /*minio server secret key/ password =*/    "miniominio");
 
 
-            ButtonClickTest = new DelegateCommand<string>(str => {
-                /*BUTTON CLICK*/
-            });
             // вызываю в отдельном потоке функцию
             var getListBucketsTask = minio.ListBucketsAsync();
 
@@ -57,34 +49,14 @@ namespace MinioTApp2.ViewModel.ViewModels
                 //Console.WriteLine(bucketObj.Name + " " + bucketObj.CreationDateDateTime);
                 buckets.Add(new Buckets(bucketObj.Name, bucketObj.CreationDate));
             }
-            _selectedBucket = buckets[0];
-            
+
+
         }
 
 
 
-        private string _testString;
-        public string TestString 
-        {
-            get { return _testString; }
-            set
-            { 
-                _testString = value;
-                RaisePropertyChanged("Test"); 
-            }   
 
-        }
 
-        private Buckets _selectedBucket;
-        public Buckets SelectedBucket
-        {
-            get { return _selectedBucket; }
-            set
-            {
-                _selectedBucket = value;
-                RaisePropertyChanged("SelectedBucket");
-            }
-        }
 
 
 

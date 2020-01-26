@@ -15,11 +15,15 @@ namespace MinioTApp2.Resources.Pages
     public sealed partial class ViewerPage : UserControl
     {
 
+        ViewPageVM ViewModel { get; set; }
 
         public ViewerPage()
         {
             this.InitializeComponent();
-            DataContext = new ViewPageVM();
+            ViewModel =  new ViewPageVM();
+            DataContext = ViewModel;
+
+
         }
 
 
