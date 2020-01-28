@@ -120,7 +120,8 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Models\Buckets.cs" />
+    <Compile Include="Models\BucketsMinio.cs" />
+    <Compile Include="Models\ItemsMinio.cs" />
     <Compile Include="Models\MinioFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\MinioTApp2.Model.rd.xml" />

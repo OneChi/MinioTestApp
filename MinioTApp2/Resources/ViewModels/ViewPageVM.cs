@@ -12,65 +12,67 @@ using MinioTApp2;
 using Minio.DataModel;
 using Prism.Mvvm;
 using Prism.Commands;
-
+using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Controls;
+using Minio.Exceptions;
+using System.Threading;
 
 namespace MinioTApp2.ViewModel.ViewModels
 {
     public class ViewPageVM : BindableBase
     {
 
-        // Initialize the client with access credentials.
-        private static MinioClient minio;
+        public ObservableCollection<BucketsMinio> buckets { get; set; }
 
-        public ObservableCollection<Buckets> buckets { get; set; }
-
-        public DelegateCommand<string> ButtonClickTest  { get; }
-      
-        
+       
 
     public ViewPageVM() {
 
-            minio = new MinioClient(
-           /*minio server ip =*/                      "83.149.198.59:9000",
-           /*minio server open key/ login =*/         "minio",
-          /*minio server secret key/ password =*/    "miniominio");
+            buckets = new ObservableCollection<BucketsMinio>();
+
             
 
-            buckets = new ObservableCollection<Buckets>();
-            ButtonClickTest = new DelegateCommand<string>(str => {
-                /*BUTTON CLICK*/
-                buckets.Clear();   
+        }
+
+        public void OnRefreshClick() 
+        {
+            buckets.Clear();
             var rep = App.Repository.getListBuckets();
             foreach (var t in rep)
-            buckets.Add(t); //
-               
-            });
-            
-            
-            /*
-            // вызываю в отдельном потоке функцию
-            var getListBucketsTask = minio.ListBucketsAsync();
-            // Create an async task for listing buckets.
-            try
-            {
-                Task.WaitAll(getListBucketsTask); // block while the task completes
-            }
-            catch (AggregateException aggEx)
-            {
-                aggEx.Handle(HandleBatchExceptions);
-            }
-            //Iterate over the list of buckets.
-            foreach (Bucket bucketObj in getListBucketsTask.Result.Buckets)
-            {
-                //Console.WriteLine(bucketObj.Name + " " + bucketObj.CreationDateDateTime);
-                buckets.Add(new Buckets(bucketObj.Name, bucketObj.CreationDate));
-            }
-            //_selectedBucket = buckets[0];
-            */
-
-            
+                buckets.Add(t); //
         }
-        
+
+        public void ListViewOut_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            var objects = App.Repository.ListObjectsAsync(_selectedBucket.BucketName, null, false);
+            ObservableCollection<Item> itemslist = new ObservableCollection<Item>();
+            bool complete = false;
+                IDisposable subscription = objects.Subscribe(
+                        item => itemslist.Add(item),
+                        ex => Console.WriteLine("OnError: {0}", ex.Message),  // error handling
+                        () => complete = true);
+               // Thread.Sleep(1000);
+                while (complete != true)
+                {
+                    Thread.Sleep(10);
+                }
+
+            buckets.Clear();
+
+            foreach(var item in itemslist)
+            {
+                
+            }
+                
+        }
+
+        public void ListViewOut_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // var bucket = e.AddedItems[0] as Buckets;
+            //focus_1 = bucket;
+            TestString = (e.AddedItems[0] as BucketsMinio).Name;
+            //TestOut.Text = bucket.Name;
+        }
 
 
         private string _testString;
@@ -80,13 +82,13 @@ namespace MinioTApp2.ViewModel.ViewModels
             set
             { 
                 _testString = value;
-                RaisePropertyChanged("Test"); 
+                RaisePropertyChanged("TestString"); 
             }   
 
         }
 
-        private Buckets _selectedBucket;
-        public Buckets SelectedBucket
+        private BucketsMinio _selectedBucket;
+        public BucketsMinio SelectedBucket
         {
             get { return _selectedBucket; }
             set
@@ -116,3 +118,26 @@ namespace MinioTApp2.ViewModel.ViewModels
 
     }
 }
+
+
+
+/*
+  
+   public DelegateCommand<string> ButtonClickTest  { get; }
+      
+        
+ 
+             ButtonClickTest = new DelegateCommand<string>(str => {
+                //BUTTON CLICK
+            buckets.Clear();   
+            var rep = App.Repository.getListBuckets();
+            foreach (var t in rep)
+            buckets.Add(t); //
+               
+            });
+
+    <TextBlock  DataContext="{Binding SelectedBucket}"  Text="{Binding BucketName, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="68,0,0,79" HorizontalAlignment="Left" Width="1808">Main</TextBlock>
+
+
+
+     */
