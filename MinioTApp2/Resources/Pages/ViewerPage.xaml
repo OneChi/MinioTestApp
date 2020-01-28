@@ -5,10 +5,11 @@
     xmlns:local="using:MinioTApp2.Resources.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:bucket="using:MinioTApp2.Model.Models"
+    xmlns:model="using:MinioTApp2.Model.Models"
+    xmlns:templateSelector="using:MinioTApp2.Resources.TemplateSelector"
     mc:Ignorable="d">
     <UserControl.Resources>
-        <DataTemplate x:Key="BucketObject"  x:DataType="bucket:BucketsMinio">
+        <DataTemplate x:Key="BucketObject"  x:DataType="model:BucketsMinio">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
@@ -34,31 +35,55 @@
                 <TextBlock  Grid.Column="1"
                     Grid.Row="1"
                     x:Name="BucketDesc"
-                    Text="{x:Bind Path=BucketDesc}"
+                    Text="{x:Bind Path=BucketCreationDate}"
                     x:Phase="2"
                     Style="{ThemeResource BodyTextBlockStyle}"
                     Margin="12,0,0,6"/>
             </Grid>
         </DataTemplate>
-
+        <DataTemplate x:Key="ItemObject" x:DataType="model:ItemsMinio">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Ellipse x:Name="Ellipse"
+                    Grid.RowSpan="2"
+                    Width ="32"
+                    Height="32"
+                    Margin="6"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Fill="{ThemeResource SystemControlBackgroundBaseMediumBrush}"/>
+                <TextBlock x:Name="BucketName" Grid.Column="1"
+                    Text="{x:Bind Path=ItemKey}"
+                    x:Phase="1"
+                    Style="{ThemeResource BaseTextBlockStyle}"
+                    Margin="12,6,0,0"/>
+                <TextBlock  Grid.Column="1"
+                    Grid.Row="1"
+                    x:Name="BucketDesc"
+                    Text="{x:Bind Path=ItemLastModifiedDate}"
+                    x:Phase="2"
+                    Style="{ThemeResource BodyTextBlockStyle}"
+                    Margin="12,0,0,6"/>
+            </Grid>
+        </DataTemplate>
+        <templateSelector:ViewPageTemplateSelector x:Key="TemplateSelector" 
+                                            BucketTemplate="{StaticResource BucketObject}"
+                                            ItemTemplate="{StaticResource ItemObject}"/>
     </UserControl.Resources>
-    
-    
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
 
-        <ListBox x:Name="ListViewOut" DoubleTapped="{x:Bind ViewModel.ListViewOut_DoubleTapped}"  SelectionChanged="{x:Bind ViewModel.ListViewOut_SelectionChanged}" 
-        SelectionMode="Single" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemTemplate="{StaticResource BucketObject}" ItemsSource="{Binding buckets}" SelectedItem="{Binding SelectedBucket,Mode=TwoWay}">
-            <ListBox.Resources>
-                <DataTemplate x:Key="s1s" DataType="{x:Type local:BananaViewModel}">
-                    <TextBlock Text="{Binding Name}" Foreground="Yellow"/>
-                </DataTemplate>
-                <DataTemplate x:Key="s2s" DataType="{x:Type local:AppleViewModel}">
-                    <TextBlock Text="{Binding Name}" Foreground="Red"/>
-                </DataTemplate>
-            </ListBox.Resources>
-        </ListBox>
-        <Button Width="106" HorizontalAlignment="Center" Click="{x:Bind ViewModel.OnRefreshClick}" VerticalAlignment="Top" Margin="0,900,0,0" FontSize="16" Height="101" >Refresh</Button>
-        <TextBlock  Text="{x:Bind ViewModel.TestString,Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="68,0,0,22" HorizontalAlignment="Left" Width="1808">Test</TextBlock>
+        <ListView  x:Name="ListViewOut" DoubleTapped="{x:Bind ViewModel.ListViewOut_DoubleTapped}"  
+        SelectionMode="Single" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemTemplateSelector="{StaticResource TemplateSelector}" ItemsSource="{Binding List}" SelectedItem="{Binding SelectedBucket,Mode=TwoWay}">
+        </ListView>
+        <Button Click="{x:Bind ViewModel.OnRefreshClick}" VerticalAlignment="Top" Margin="1802,70,49,0" FontSize="16" Height="67" HorizontalAlignment="Stretch" >Refresh</Button>
+        <TextBlock  Text="{x:Bind ViewModel.SelectedBucket.BucketName,Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="68,0,0,22" HorizontalAlignment="Left" Width="1808">Test</TextBlock>
 
     </Grid>
 </UserControl>

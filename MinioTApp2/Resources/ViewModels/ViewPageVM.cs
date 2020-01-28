@@ -22,24 +22,48 @@ namespace MinioTApp2.ViewModel.ViewModels
     public class ViewPageVM : BindableBase
     {
 
-        public ObservableCollection<BucketsMinio> buckets { get; set; }
+        private Object _list;
+        public ObservableCollection<BucketsMinio> BucketsM { get; set; }
+        public ObservableCollection<ItemsMinio> ItemsM { get; set; }
 
-       
+        public Object List
+        {
+            get { return _list; }
+            set
+            {
+                _list = value;
+                RaisePropertyChanged("List");
+            }
+        }
+        /*
+        public void CommandExecuted()
+        {
+            if (ReferenceEquals(_list, _intList))
+            {
+                List = _stringList;
+            }
+            else
+            {
+                List = _intList;
+            }
+        }
+        */
+        public ViewPageVM() {
 
-    public ViewPageVM() {
+            BucketsM = new ObservableCollection<BucketsMinio>();
+            ItemsM = new ObservableCollection<ItemsMinio>();
 
-            buckets = new ObservableCollection<BucketsMinio>();
 
-            
 
         }
 
         public void OnRefreshClick() 
         {
-            buckets.Clear();
+            BucketsM.Clear();
             var rep = App.Repository.getListBuckets();
             foreach (var t in rep)
-                buckets.Add(t); //
+                BucketsM.Add(t); //
+            List = BucketsM;
         }
 
         public void ListViewOut_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
@@ -57,12 +81,14 @@ namespace MinioTApp2.ViewModel.ViewModels
                     Thread.Sleep(10);
                 }
 
-            buckets.Clear();
-
+            BucketsM.Clear();
+            ItemsM.Clear();
             foreach(var item in itemslist)
             {
-                
+                var itm = new ItemsMinio(item);
+                ItemsM.Add(itm);                
             }
+            List = ItemsM;
                 
         }
 
@@ -138,6 +164,7 @@ namespace MinioTApp2.ViewModel.ViewModels
 
     <TextBlock  DataContext="{Binding SelectedBucket}"  Text="{Binding BucketName, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="68,0,0,79" HorizontalAlignment="Left" Width="1808">Main</TextBlock>
 
+    <TextBlock  Text="{x:Bind ViewModel.TestString,Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="68,0,0,22" HorizontalAlignment="Left" Width="1808">Test</TextBlock>
 
 
      */

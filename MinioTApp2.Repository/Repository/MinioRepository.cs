@@ -130,7 +130,8 @@ namespace MinioTApp2.Repository.Repository
                 {
                     // List objects from 'my-bucketname'
                     IObservable<Item> observable = minio.ListObjectsAsync(BucketName, Prefix, Recursive);
-
+                    Item A = new Item();
+                     
                     return observable;
                     /*IDisposable subscription = observable.Subscribe(
                             item => Console.WriteLine("OnNext: {0}", item.Key),

@@ -129,6 +129,7 @@
     <Compile Include="Resources\Pages\ViewerPage.xaml.cs">
       <DependentUpon>ViewerPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Resources\TemplateSelector\ViewPageTemplateSelector.cs" />
     <Compile Include="Resources\ViewModels\MainWindowVM.cs" />
     <Compile Include="Resources\ViewModels\ViewPageVM.cs" />
   </ItemGroup>
