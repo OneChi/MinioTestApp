@@ -78,12 +78,43 @@
                                             ItemTemplate="{StaticResource ItemObject}"/>
     </UserControl.Resources>
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <SplitView x:Name="splitView" PaneBackground="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
+           IsPaneOpen="True" OpenPaneLength="256" CompactPaneLength="48" DisplayMode="Inline">
+            <SplitView.Pane>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="PANE CONTENT" x:Name="PaneHeader" Margin="60,12,0,0" Style="{StaticResource BaseTextBlockStyle}"/>
+                    <ListView x:Name="NavLinksList" Margin="0,12,0,0" 
+                              SelectionMode="Single" 
+                              SelectedItem="{Binding SelectedBucket,Mode=TwoWay}"
+                              DoubleTapped="{x:Bind ViewModel.ListViewOut_DoubleTapped}"
+                              Grid.Row="1" VerticalAlignment="Stretch"
+                              IsItemClickEnabled="True"
+                    ItemsSource="{x:Bind ViewModel.BucketsM}" ItemTemplate="{StaticResource BucketObject}"/>
+                    <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="14,24,0,24" >
+                        <SymbolIcon Symbol="Setting" />
+                        <TextBlock Text="Settings" Margin="24,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </SplitView.Pane>
 
-        <ListView  x:Name="ListViewOut" DoubleTapped="{x:Bind ViewModel.ListViewOut_DoubleTapped}"  
-        SelectionMode="Single" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemTemplateSelector="{StaticResource TemplateSelector}" ItemsSource="{Binding List}" SelectedItem="{Binding SelectedBucket,Mode=TwoWay}">
-        </ListView>
-        <Button Click="{x:Bind ViewModel.OnRefreshClick}" VerticalAlignment="Top" Margin="1802,70,49,0" FontSize="16" Height="67" HorizontalAlignment="Stretch" >Refresh</Button>
-        <TextBlock  Text="{x:Bind ViewModel.SelectedBucket.BucketName,Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="68,0,0,22" HorizontalAlignment="Left" Width="1808">Test</TextBlock>
+            <Grid>
+                <ListView  x:Name="ListViewOut"  
+                           SelectionMode="Single" 
+                           HorizontalAlignment="Stretch" 
+                           VerticalAlignment="Stretch" 
+                           ItemTemplateSelector="{StaticResource TemplateSelector}" 
+                           ItemsSource="{Binding List}" >
+                </ListView>
+                <Button Click="{x:Bind ViewModel.OnRefreshClick}" VerticalAlignment="Bottom" Margin="0,0,40,51" FontSize="16" HorizontalAlignment="Right" Width="69" Height="67" >Refresh</Button>
+                <TextBlock  Text="{x:Bind ViewModel.SelectedBucket.BucketName,Mode=OneWay}" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="68,0,0,22" HorizontalAlignment="Left" Width="1808">Test</TextBlock>
+
+            </Grid>
+        </SplitView>
 
     </Grid>
 </UserControl>

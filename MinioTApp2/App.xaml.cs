@@ -13,7 +13,7 @@ namespace MinioTApp2
     sealed partial class App : Application
     {
         // Gets the app-wide MainViewModel singleton instance.
-        public static MainWindowVM ViewModel { get; } = new MainWindowVM();
+        public static MainWindowVM ViewModel { get; private set; }
 
 
         // Pipeline for interacting with backend service or database.
@@ -24,7 +24,8 @@ namespace MinioTApp2
             this.InitializeComponent();
             this.Suspending += OnSuspending;
         }
-        
+
+
         /*
          Call when user open app usually. When user launch app not usually like dropping file - use other entry point.
          <param name="e">Launch parameters.</param>
@@ -53,10 +54,19 @@ namespace MinioTApp2
                 Window.Current.Activate();
             }
 
-            Repository = new MinioRepository();
 
         }
 
+
+        protected override void OnWindowCreated(WindowCreatedEventArgs args)
+        {
+            base.OnWindowCreated(args);
+
+            ViewModel = new MainWindowVM();
+            Repository = new MinioRepository();
+
+
+        }
 
         // Call when error ocurrs while navigation between pages
         /// <param name="sender">Error occurrs here Frame</param>

@@ -22,75 +22,65 @@ namespace MinioTApp2.ViewModel.ViewModels
     public class ViewPageVM : BindableBase
     {
 
-        private Object _list;
+
         public ObservableCollection<BucketsMinio> BucketsM { get; set; }
         public ObservableCollection<ItemsMinio> ItemsM { get; set; }
+        
 
-        public Object List
-        {
-            get { return _list; }
-            set
-            {
-                _list = value;
-                RaisePropertyChanged("List");
-            }
-        }
-        /*
-        public void CommandExecuted()
-        {
-            if (ReferenceEquals(_list, _intList))
-            {
-                List = _stringList;
-            }
-            else
-            {
-                List = _intList;
-            }
-        }
-        */
+        // CONSTRUCTOR
         public ViewPageVM() {
-
             BucketsM = new ObservableCollection<BucketsMinio>();
             ItemsM = new ObservableCollection<ItemsMinio>();
-
-
-
+            refreshBucketsList();
         }
 
-        public void OnRefreshClick() 
+        private void refreshBucketsList() 
         {
             BucketsM.Clear();
             var rep = App.Repository.getListBuckets();
             foreach (var t in rep)
                 BucketsM.Add(t); //
-            List = BucketsM;
+           //List = BucketsM;
+        }
+
+        public void OnRefreshClick() 
+        {
+            refreshBucketsList();
         }
 
         public void ListViewOut_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
+            if (_selectedBucket != null)
+            {
+                LoadListOfItemsInBucket();
+            }
+        }
+
+        public void LoadListOfItemsInBucket() 
+        {
             var objects = App.Repository.ListObjectsAsync(_selectedBucket.BucketName, null, false);
             ObservableCollection<Item> itemslist = new ObservableCollection<Item>();
             bool complete = false;
-                IDisposable subscription = objects.Subscribe(
-                        item => itemslist.Add(item),
-                        ex => Console.WriteLine("OnError: {0}", ex.Message),  // error handling
-                        () => complete = true);
-               // Thread.Sleep(1000);
-                while (complete != true)
-                {
-                    Thread.Sleep(10);
-                }
+            IDisposable subscription = objects.Subscribe(
+                    item => itemslist.Add(item),
+                    ex => Console.WriteLine("OnError: {0}", ex.Message),  // error handling
+                    () => complete = true);
+            // Thread.Sleep(1000);
+            while (complete != true)
+            {
+                Thread.Sleep(10);
+            }
 
-            BucketsM.Clear();
+            
             ItemsM.Clear();
-            foreach(var item in itemslist)
+            foreach (var item in itemslist)
             {
                 var itm = new ItemsMinio(item);
-                ItemsM.Add(itm);                
+                ItemsM.Add(itm);
             }
             List = ItemsM;
-                
         }
+
 
         public void ListViewOut_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -124,7 +114,16 @@ namespace MinioTApp2.ViewModel.ViewModels
             }
         }
 
-
+        private Object _list;
+        public Object List
+        {
+            get { return _list; }
+            set
+            {
+                _list = value;
+                RaisePropertyChanged("List");
+            }
+        }
 
         private static bool HandleBatchExceptions(Exception exceptionToHandle)
         {
@@ -148,7 +147,19 @@ namespace MinioTApp2.ViewModel.ViewModels
 
 
 /*
-  
+          
+        public void CommandExecuted()
+        {
+            if (ReferenceEquals(_list, _intList))
+            {
+                List = _stringList;
+            }
+            else
+            {
+                List = _intList;
+            }
+        }
+        
    public DelegateCommand<string> ButtonClickTest  { get; }
       
         
