@@ -2,7 +2,7 @@
 
 namespace MinioTApp2.Model.Models
 {
-    public class BucketsMinio
+    public class MinioBucketModel
     {
 
         public string BucketName { get; private set; }
@@ -10,7 +10,7 @@ namespace MinioTApp2.Model.Models
         public DateTime BucketCreationDateTime { get; private set; }
         public string Name => BucketName;
 
-        public BucketsMinio(string bucketName, string bucketDesc)
+        public MinioBucketModel(string bucketName, string bucketDesc)
         {
             BucketName = bucketName;
             BucketCreationDate = bucketDesc;

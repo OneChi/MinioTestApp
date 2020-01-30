@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MinioTApp2.Model.Models
 {
-    public class ItemsMinio
+    public class MinioItemModel
     { 
         public string ItemKey { get; private set; }
         public string Etag { get; private set; }
@@ -17,7 +17,7 @@ namespace MinioTApp2.Model.Models
         public ulong ItemSize { get; private set; }
 
 
-        public ItemsMinio(string ItemName)
+        public MinioItemModel(string ItemName)
         {
             Etag = null;
             ItemLastModifiedDate = "000";
@@ -28,7 +28,7 @@ namespace MinioTApp2.Model.Models
 
         }
 
-        public ItemsMinio(Item minioItem) 
+        public MinioItemModel(Item minioItem) 
         {
             Etag = minioItem.ETag;
             ItemLastModifiedDate = minioItem.LastModified;

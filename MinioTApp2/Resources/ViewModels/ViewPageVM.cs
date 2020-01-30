@@ -23,14 +23,14 @@ namespace MinioTApp2.ViewModel.ViewModels
     {
 
 
-        public ObservableCollection<BucketsMinio> BucketsM { get; set; }
-        public ObservableCollection<ItemsMinio> ItemsM { get; set; }
+        public ObservableCollection<MinioBucketModel> BucketsM { get; set; }
+        public ObservableCollection<MinioItemModel> ItemsM { get; set; }
         
 
         // CONSTRUCTOR
         public ViewPageVM() {
-            BucketsM = new ObservableCollection<BucketsMinio>();
-            ItemsM = new ObservableCollection<ItemsMinio>();
+            BucketsM = new ObservableCollection<MinioBucketModel>();
+            ItemsM = new ObservableCollection<MinioItemModel>();
             refreshBucketsList();
         }
 
@@ -75,7 +75,7 @@ namespace MinioTApp2.ViewModel.ViewModels
             ItemsM.Clear();
             foreach (var item in itemslist)
             {
-                var itm = new ItemsMinio(item);
+                var itm = new MinioItemModel(item);
                 ItemsM.Add(itm);
             }
             List = ItemsM;
@@ -86,7 +86,7 @@ namespace MinioTApp2.ViewModel.ViewModels
         {
             // var bucket = e.AddedItems[0] as Buckets;
             //focus_1 = bucket;
-            TestString = (e.AddedItems[0] as BucketsMinio).Name;
+            TestString = (e.AddedItems[0] as MinioBucketModel).Name;
             //TestOut.Text = bucket.Name;
         }
 
@@ -103,8 +103,8 @@ namespace MinioTApp2.ViewModel.ViewModels
 
         }
 
-        private BucketsMinio _selectedBucket;
-        public BucketsMinio SelectedBucket
+        private MinioBucketModel _selectedBucket;
+        public MinioBucketModel SelectedBucket
         {
             get { return _selectedBucket; }
             set

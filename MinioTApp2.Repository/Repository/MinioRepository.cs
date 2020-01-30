@@ -30,8 +30,8 @@ namespace MinioTApp2.Repository.Repository
         }
 
         // Returns ObservableCollection of "Buckets"(MinioTApp2.Models.Models.Buckets) which stored on remote server
-        public ObservableCollection<BucketsMinio> getListBuckets() {
-            ObservableCollection<BucketsMinio> buckets = new ObservableCollection<BucketsMinio>();
+        public ObservableCollection<MinioBucketModel> getListBuckets() {
+            ObservableCollection<MinioBucketModel> buckets = new ObservableCollection<MinioBucketModel>();
 
             // Start function in other thread
             var getListBucketsTask = minio.ListBucketsAsync();
@@ -47,54 +47,47 @@ namespace MinioTApp2.Repository.Repository
             //Iterate over the list of buckets.
             foreach (Bucket bucketObj in getListBucketsTask.Result.Buckets)
             {
-                buckets.Add(new BucketsMinio(bucketObj.Name, bucketObj.CreationDate));
+                buckets.Add(new MinioBucketModel(bucketObj.Name, bucketObj.CreationDate));
             }
             return buckets;
         }
 
-        public async Task<String> CreateBucketIfExistAsync(String BucketName) {
+        // true - bucket was created | false - bucket already exists
+        public async Task<Boolean> CreateBucketIfExistAsync(String BucketName) {
             try
             {
                 // Create bucket if it doesn't exist.
                 bool found = await minio.BucketExistsAsync(BucketName);
                 if (found)
                 {
-                    Console.WriteLine("mybucket already exists");
-                    return "Exists";
+                    return false;
                 }
                 else
                 {
-                    // Create bucket 'my-bucketname'.
-                    await minio.MakeBucketAsync("mybucket");
-                    Console.WriteLine("mybucket is created successfully");
-                    return "Secess";
+                    // Create bucket 'bucketname'.
+                    await minio.MakeBucketAsync(BucketName);
+                    return true;
                 }
             }
-            catch (MinioException e)
-            {
-                Console.WriteLine("Error occurred: " + e);
-                return "Error occurred: " + e;
-            }
+            catch (MinioException e){throw;}
         }
-
-        public async Task<string> BucketNameExistsAsync(String BucketName) {
+        // true - bucket found false - bucket not found
+        public async Task<Boolean> BucketNameExistsAsync(String BucketName) {
             try
             {
                 // Check whether 'my-bucketname' exists or not.
                 bool found = await minio.BucketExistsAsync(BucketName);
-
-                Console.WriteLine("bucket-name " + ((found == true) ? "exists" : "does not exist"));
-                return found ? BucketName : "Not find";
+                return found ? true : false;
             }
             catch (MinioException e)
             {
-                Console.WriteLine("Exception: ", e);
-                return "Exception: " + e;
+                throw; 
             }
         }
         // Remove bucket BucketName. This operation will succeed only if the bucket is empty.
-        public async Task<string> RemoveBucketAsync(String BucketName)
+        public async Task<Boolean> RemoveBucketAsync(String BucketName)
         {
+            // TODO handle situation when bucket are not empty
             try
             {
                 // Check if my-bucket exists before removing it.
@@ -102,19 +95,16 @@ namespace MinioTApp2.Repository.Repository
                 if (found)
                 {
                     await minio.RemoveBucketAsync(BucketName);
-                    Console.WriteLine("mybucket is removed successfully");
-                    return "Removed";
+                    return true;
                 }
                 else
                 {
-                    Console.WriteLine("mybucket does not exist");
-                    return "Not Find";
+                    return false;
                 }
             }
             catch (MinioException e)
             {
-                Console.WriteLine("Error occurred: " + e);
-                return "Error: " + e;
+                throw;
             }
         }
         // Lists all objects in a bucket or null case error or doesnt exists
@@ -129,9 +119,7 @@ namespace MinioTApp2.Repository.Repository
                 if (found.Result)
                 {
                     // List objects from 'my-bucketname'
-                    IObservable<Item> observable = minio.ListObjectsAsync(BucketName, Prefix, Recursive);
-                    Item A = new Item();
-                     
+                    IObservable<Item> observable = minio.ListObjectsAsync(BucketName, Prefix, Recursive);  
                     return observable;
                     /*IDisposable subscription = observable.Subscribe(
                             item => Console.WriteLine("OnNext: {0}", item.Key),
@@ -140,57 +128,23 @@ namespace MinioTApp2.Repository.Repository
                 }
                 else
                 {
-                    Console.WriteLine("mybucket does not exist");
-                    return null;
+                    throw new BucketNotFoundException();
                 }
             }
             catch (MinioException e)
             {
-                Console.WriteLine("Error occurred: " + e);
-                return null;
+                throw;
             }
-
-
-
-
-            /*
-                         try
-            {
-                // Check whether 'mybucket' exists or not.
-                bool found = await minio.BucketExistsAsync(BucketName);
-                bool complete = false;
-                if (found)
-                {
-                    // List objects from 'my-bucketname'
-                    IObservable<Item> observable = minio.ListObjectsAsync(BucketName, Prefix, Recursive);
-                    IDisposable subscription = observable.Subscribe(
-                            item => itemslist.Add(item),
-                            ex => Console.WriteLine("OnError: {0}", ex.Message),
-                            () => complete = true);
-                    Thread.Sleep(1000);
-                }
-                else
-                {
-                    Console.WriteLine("mybucket does not exist");
-                }
-            }
-            catch (MinioException e)
-            {
-                Console.WriteLine("Error occurred: " + e);
-            }
-
-            return itemslist;
-             
-             */
         }
         //ListIncompleteUploads
-        public async Task<IObservable<Upload>> ListIncompleteUploadsAsync(string bucketName, string prefix, bool recursive) 
+        public IObservable<Upload> ListIncompleteUploadsAsync(string bucketName, string prefix, bool recursive) 
         {
             try
             {
                 // Check whether 'mybucket' exist or not.
-                bool found = await minio.BucketExistsAsync(bucketName);
-                if (found)
+                var found = minio.BucketExistsAsync(bucketName);
+                Task.WaitAll(found);
+                if (found.Result)
                 {
                     // List all incomplete multipart upload of objects in 'mybucket'
                     IObservable<Upload> observable;
@@ -203,14 +157,12 @@ namespace MinioTApp2.Repository.Repository
                 }
                 else
                 {
-                    Console.WriteLine("mybucket does not exist");
-                    return null;
+                    throw new Minio.Exceptions.BucketNotFoundException();
                 }
             }
             catch (MinioException e)
             {
-                Console.WriteLine("Error occurred: " + e);
-                return null;
+                throw;
             }
         }
 

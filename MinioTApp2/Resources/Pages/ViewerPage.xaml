@@ -9,7 +9,7 @@
     xmlns:templateSelector="using:MinioTApp2.Resources.TemplateSelector"
     mc:Ignorable="d">
     <UserControl.Resources>
-        <DataTemplate x:Key="BucketObject"  x:DataType="model:BucketsMinio">
+        <DataTemplate x:Key="BucketObject"  x:DataType="model:MinioBucketModel">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
@@ -41,7 +41,7 @@
                     Margin="12,0,0,6"/>
             </Grid>
         </DataTemplate>
-        <DataTemplate x:Key="ItemObject" x:DataType="model:ItemsMinio">
+        <DataTemplate x:Key="ItemObject" x:DataType="model:MinioItemModel">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>

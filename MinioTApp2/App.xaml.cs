@@ -6,6 +6,7 @@ using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using System.Security.Permissions;
 
 namespace MinioTApp2
 {
@@ -20,12 +21,17 @@ namespace MinioTApp2
         public static MinioRepository Repository { get; private set; }
 
         public App()
-        {
-            this.InitializeComponent();
-            this.Suspending += OnSuspending;
+        { 
+                this.InitializeComponent();
+                this.Suspending += OnSuspending;
         }
 
-
+        static void MyHandler(object sender, System.UnhandledExceptionEventArgs args)
+        {
+            Exception e = (Exception)args.ExceptionObject;
+            Console.WriteLine("MyHandler caught : " + e.Message);
+            Console.WriteLine("Runtime terminating: {0}", args.IsTerminating);
+        }
         /*
          Call when user open app usually. When user launch app not usually like dropping file - use other entry point.
          <param name="e">Launch parameters.</param>

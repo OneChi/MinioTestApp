@@ -18,7 +18,7 @@ namespace MinioTApp2.Resources.TemplateSelector
 
             protected override DataTemplate SelectTemplateCore(object item)
             {
-               var newItem = item as ItemsMinio;
+               var newItem = item as MinioItemModel;
                 if (newItem != null)
                 {
                     return ItemTemplate;
