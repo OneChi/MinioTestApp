@@ -52,6 +52,9 @@ namespace MinioTApp2.Repository.Repository
             return buckets;
         }
 
+
+        //  BUCKET OPERATIONS
+
         // true - bucket was created | false - bucket already exists
         public async Task<Boolean> CreateBucketIfExistAsync(String BucketName) {
             try
@@ -69,7 +72,7 @@ namespace MinioTApp2.Repository.Repository
                     return true;
                 }
             }
-            catch (MinioException e){throw;}
+            catch (MinioException e) { throw; }
         }
         // true - bucket found false - bucket not found
         public async Task<Boolean> BucketNameExistsAsync(String BucketName) {
@@ -81,25 +84,27 @@ namespace MinioTApp2.Repository.Repository
             }
             catch (MinioException e)
             {
-                throw; 
+                throw;
             }
         }
         // Remove bucket BucketName. This operation will succeed only if the bucket is empty.
-        public async Task<Boolean> RemoveBucketAsync(String BucketName)
+        public Task RemoveBucketAsync(String BucketName)
         {
             // TODO handle situation when bucket are not empty
             try
             {
                 // Check if my-bucket exists before removing it.
-                bool found = await minio.BucketExistsAsync(BucketName);
-                if (found)
+                var found = minio.BucketExistsAsync(BucketName);
+                Task.WaitAll(found);
+                if (found.Result)
                 {
-                    await minio.RemoveBucketAsync(BucketName);
-                    return true;
+                    var remove = minio.RemoveBucketAsync(BucketName);
+
+                    return remove;
                 }
                 else
                 {
-                    return false;
+                    throw new Minio.Exceptions.BucketNotFoundException();
                 }
             }
             catch (MinioException e)
@@ -108,7 +113,7 @@ namespace MinioTApp2.Repository.Repository
             }
         }
         // Lists all objects in a bucket or null case error or doesnt exists
-        public IObservable<Item> ListObjectsAsync(String BucketName, String Prefix = null, Boolean Recursive = true) 
+        public IObservable<Item> ListObjectsAsync(String BucketName, String Prefix = null, Boolean Recursive = true)
         {
 
             try
@@ -119,7 +124,7 @@ namespace MinioTApp2.Repository.Repository
                 if (found.Result)
                 {
                     // List objects from 'my-bucketname'
-                    IObservable<Item> observable = minio.ListObjectsAsync(BucketName, Prefix, Recursive);  
+                    IObservable<Item> observable = minio.ListObjectsAsync(BucketName, Prefix, Recursive);
                     return observable;
                     /*IDisposable subscription = observable.Subscribe(
                             item => Console.WriteLine("OnNext: {0}", item.Key),
@@ -137,7 +142,7 @@ namespace MinioTApp2.Repository.Repository
             }
         }
         //ListIncompleteUploads
-        public IObservable<Upload> ListIncompleteUploadsAsync(string bucketName, string prefix, bool recursive) 
+        public IObservable<Upload> ListIncompleteUploadsAsync(string bucketName, string prefix, bool recursive)
         {
             try
             {
@@ -148,8 +153,8 @@ namespace MinioTApp2.Repository.Repository
                 {
                     // List all incomplete multipart upload of objects in 'mybucket'
                     IObservable<Upload> observable;
-                   return observable = minio.ListIncompleteUploads(bucketName, prefix, recursive);
-                    
+                    return observable = minio.ListIncompleteUploads(bucketName, prefix, recursive);
+
                     /*IDisposable subscription = observable.Subscribe(
                                         item => Console.WriteLine("OnNext: {0}", item.Key),
                                         ex => Console.WriteLine("OnError: {0}", ex.Message),
@@ -165,7 +170,113 @@ namespace MinioTApp2.Repository.Repository
                 throw;
             }
         }
+        //Get bucket policy.
+        public Task<String> GetBucketPolicyAsync(string bucketName)
+        {
+            try
+            {
 
+                var outStr = minio.GetPolicyAsync(bucketName);
+                return outStr;
+
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
+        }
+        //Set bucket policy.
+        public Task SetBucketPolicyAsync(string bucketName, string policyJson)
+        {
+            try
+            {
+                var outStr = minio.SetPolicyAsync(bucketName, policyJson);
+                return outStr;
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
+        }
+        // Sets notification configuration for a given bucket
+        public Task SetBucketNotificAsync(string bucketName, BucketNotification notification)
+        {
+            try
+            {
+                /*
+                 BucketNotification notification = new BucketNotification();
+                    Arn topicArn = new Arn("aws", "sns", "us-west-1", "412334153608", "topicminio");
+
+                    TopicConfig topicConfiguration = new TopicConfig(topicArn);
+                    List<EventType> events = new List<EventType>() { EventType.ObjectCreatedPut, EventType.ObjectCreatedCopy };
+                    topicConfiguration.AddEvents(events);
+                topicConfiguration.AddFilterPrefix("images");
+                topicConfiguration.AddFilterSuffix("jpg");
+                notification.AddTopic(topicConfiguration);
+
+                QueueConfig queueConfiguration = new QueueConfig("arn:aws:sqs:us-west-1:482314153608:testminioqueue1");
+                    queueConfiguration.AddEvents(new List<EventType>() { EventType.ObjectCreatedCompleteMultipartUpload
+                });
+                notification.AddQueue(queueConfiguration);
+                */
+                var task = minio.SetBucketNotificationsAsync(bucketName, notification);
+                return task;
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
+        }
+        // Get bucket notification configuration Task<BucketNotification> GetBucketNotificationAsync(string bucketName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<BucketNotification> GetBucketNotificAsync(string bucketName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                var notifications = minio.GetBucketNotificationsAsync(bucketName, cancellationToken);
+                return notifications;
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
+        }
+        //RemoveAllBucketNotificationsAsync(string bucketName)
+        public Task RemoveAllBucketNotificAsync(string bucketName)
+        {
+            try
+            {
+                var task = minio.RemoveAllBucketNotificationsAsync(bucketName);
+                return task;
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
+        }
+
+        //   TODO:   OBJECT OPERATIONS
+        //Downloads an object as a stream.
+
+        //Downloads the specified range bytes of an object as a stream.Both offset and length are required
+
+        //Downloads and saves the object as a file in the local filesystem.
+
+        //Uploads contents from a stream to objectName.
+        //The maximum size of a single object is limited to 5TB. putObject transparently uploads objects larger than 5MiB in multiple parts. Uploaded data is carefully verified using MD5SUM signatures.
+
+        //Uploads contents from a file to objectName.
+
+        //Gets metadata of an object.
+
+        //Copies content from objectName to destObjectName.
+
+        //Removes an object.
+
+        //Removes a list of objects.
+
+        //Removes a list of objects.
+
+        //  TODO:   PRESIGNED OPERATIONS 
 
         public static void LoadMinio() 
         {
