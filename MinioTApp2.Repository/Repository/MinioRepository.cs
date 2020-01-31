@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -256,26 +257,187 @@ namespace MinioTApp2.Repository.Repository
 
         //   TODO:   OBJECT OPERATIONS
         //Downloads an object as a stream.
-
+        public Task GetObjectAsStreamAsync(string bucketName, string objectName, Action<Stream> callback, ServerSideEncryption sse = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                // Check whether the object exists using statObject().
+                // If the object is not found, statObject() throws an exception,
+                // else it means that the object exists.
+                // Execution is successful.
+                var taskStatObject = minio.StatObjectAsync(bucketName, objectName);
+                Task.WaitAll(taskStatObject);
+                // Get input stream to have content of 'my-objectname' from 'my-bucketname'
+                var taskGetObject = minio.GetObjectAsync(bucketName, objectName,
+                                                 (stream) =>
+                                                 {
+                                                     stream.CopyTo(Console.OpenStandardOutput());
+                                                 }, sse, cancellationToken);
+                return taskGetObject;
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
+        }
         //Downloads the specified range bytes of an object as a stream.Both offset and length are required
-
+        public Task GetObjectRangeAsync(string bucketName, string objectName, long offset, long length, Action<Stream> callback, ServerSideEncryption sse = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                // Check whether the object exists using statObject().
+                // If the object is not found, statObject() throws an exception,
+                // else it means that the object exists.
+                // Execution is successful.
+                var taskStatObj = minio.StatObjectAsync(bucketName, objectName);
+                Task.WaitAll(taskStatObj);
+                // Get input stream to have content of 'my-objectname' from 'my-bucketname'
+                var taskGetObj = minio.GetObjectAsync(bucketName, objectName, offset, length,
+                                                 (stream) =>
+                                                 {
+                                                     stream.CopyTo(Console.OpenStandardOutput());
+                                                 }, sse, cancellationToken);
+                return taskGetObj;
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
+        }
         //Downloads and saves the object as a file in the local filesystem.
+        public Task GetObjectByFileAsync(string bucketName, string objectName, string fileName, ServerSideEncryption sse = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                // Check whether the object exists using statObjectAsync().
+                // If the object is not found, statObjectAsync() throws an exception,
+                // else it means that the object exists.
+                // Execution is successful.
+                var taskStatObj = minio.StatObjectAsync(bucketName, objectName);
+                Task.WaitAll(taskStatObj);
+                // Gets the object's data and stores it in photo.jpg
+                var taskGetObj = minio.GetObjectAsync(bucketName, objectName, fileName);
+                return taskGetObj;
 
+            }
+            catch (MinioException e)
+            {
+                throw;
+
+            }
+        }
         //Uploads contents from a stream to objectName.
         //The maximum size of a single object is limited to 5TB. putObject transparently uploads objects larger than 5MiB in multiple parts. Uploaded data is carefully verified using MD5SUM signatures.
+        public Task PutObjectFromStreamAsync(string bucketName, string objectName, Stream data, long size, string contentType = "application/octet-stream", Dictionary<string, string> metaData = null, ServerSideEncryption sse = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                /*
+                byte[] bs = File.ReadAllBytes(fileName);
+                System.IO.MemoryStream filestream = new System.IO.MemoryStream(bs);
+                // Specify SSE-C encryption options
+                Aes aesEncryption = Aes.Create();
+                aesEncryption.KeySize = 256;
+                aesEncryption.GenerateKey();
+                var ssec = new SSEC(aesEncryption.Key);*/
 
+                var taskUploadBucket = minio.PutObjectAsync(bucketName,
+                                           objectName,
+                                            data,
+                                            size,
+                                           contentType, metaData, sse, cancellationToken);
+                /*
+                 
+
+                await minio.PutObjectAsync("mybucket",
+                               "island.jpg",
+                                filestream,
+                                filestream.Length,
+                               "application/octet-stream", ssec);
+
+                 
+                 */
+                return taskUploadBucket;
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
+        }
         //Uploads contents from a file to objectName.
-
+        public Task PutObjectFromFileAsync(string bucketName, string objectName, string filePath, string contentType = null, Dictionary<string, string> metaData = null, ServerSideEncryption sse = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                var taskUploadObject = minio.PutObjectAsync(bucketName, objectName, filePath, contentType, metaData, sse, cancellationToken);
+                return taskUploadObject;
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
+        }
         //Gets metadata of an object.
-
+        public Task<ObjectStat> StatOfObjectAsync(string bucketName, string objectName, ServerSideEncryption sse = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                // Get the metadata of the object.
+                var objectStat = minio.StatObjectAsync("mybucket", "myobject");
+                return objectStat;
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
+        }
         //Copies content from objectName to destObjectName.
-
+        public Task CopyObjectFromToAsync(string bucketName, string objectName, string destBucketName, string destObjectName = null, CopyConditions copyConditions = null, Dictionary<string, string> metadata = null, ServerSideEncryption sseSrc = null, ServerSideEncryption sseDest = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                /*
+                CopyConditions copyConditions = new CopyConditions();
+                copyConditions.setMatchETagNone("TestETag");
+                ServerSideEncryption sseSrc, sseDst;
+                */
+                // Uncomment to specify source and destination Server-side encryption options
+                /*
+                 Aes aesEncryption = Aes.Create();
+                 aesEncryption.KeySize = 256;
+                 aesEncryption.GenerateKey();
+                 sseSrc = new SSEC(aesEncryption.Key);
+                 sseDst = new SSES3();
+                */
+                var taskCopyObj = minio.CopyObjectAsync(bucketName, objectName, destBucketName, destObjectName, copyConditions, metadata, sseSrc, sseDest, cancellationToken);
+                return taskCopyObj;
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
+        }
         //Removes an object.
-
+        public Task RemoveObjectFromServerAsync(string bucketName, string objectName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                // Remove objectname from the bucket my-bucketname.
+                var taskRemoveObj = minio.RemoveObjectAsync(bucketName,objectName);
+                return taskRemoveObj;
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
+        }
         //Removes a list of objects.
+        public Task<IObservable<DeleteError>> RemoveObjectListFromServerAsync(string bucketName, IEnumerable<string> objectsList, CancellationToken cancellationToken = default(CancellationToken))
+        {
 
+        }
         //Removes a list of objects.
-
+        public
         //  TODO:   PRESIGNED OPERATIONS 
 
         public static void LoadMinio() 
