@@ -434,11 +434,47 @@ namespace MinioTApp2.Repository.Repository
         //Removes a list of objects.
         public Task<IObservable<DeleteError>> RemoveObjectListFromServerAsync(string bucketName, IEnumerable<string> objectsList, CancellationToken cancellationToken = default(CancellationToken))
         {
+            try
+            {
+                /*List<String> objectNames = new LinkedList<String>();
+                objectNames.add("my-objectname1");
+                objectNames.add("my-objectname2");
+                objectNames.add("my-objectname3");*/
 
+
+                // Remove list of objects in objectNames from the bucket bucketName.
+                var observable =  minio.RemoveObjectAsync(bucketName, objectsList,cancellationToken);
+
+                return observable;
+                /*IDisposable subscription = observable.Subscribe(
+                    deleteError => Console.WriteLine("Object: {0}", deleteError.Key),
+                    ex => Console.WriteLine("OnError: {0}", ex),
+                    () =>
+                    {
+                        Console.WriteLine("Listed all delete errors for remove objects on  " + bucketName + "\n");
+                    });*/
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
         }
-        //Removes a list of objects.
-        public
-        //  TODO:   PRESIGNED OPERATIONS 
+        //Removes a partially uploaded object.
+        public Task RemoveIncompleteUploadAsync(string bucketName, string objectName, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                // Removes partially uploaded objects from buckets.
+                var taskDelete = minio.RemoveIncompleteUploadAsync(bucketName, objectName, cancellationToken);
+                return taskDelete;
+            }
+            catch (MinioException e)
+            {
+                throw;
+            }
+        }
+       
+        //  TODO:   PRESIGNED OPERATIONS - ? am i need this
 
         public static void LoadMinio() 
         {
