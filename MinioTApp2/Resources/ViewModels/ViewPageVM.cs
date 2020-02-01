@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Controls;
 using Minio.Exceptions;
 using System.Threading;
+using Windows.UI.Xaml;
 
 namespace MinioTApp2.ViewModel.ViewModels
 {
@@ -81,13 +82,17 @@ namespace MinioTApp2.ViewModel.ViewModels
             List = ItemsM;
         }
 
-
         public void ListViewOut_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // var bucket = e.AddedItems[0] as Buckets;
             //focus_1 = bucket;
             TestString = (e.AddedItems[0] as MinioBucketModel).Name;
             //TestOut.Text = bucket.Name;
+        }
+
+        public void CommandBarDelete_Click(object sender, RoutedEventArgs e) 
+        { 
+            
         }
 
 
@@ -111,6 +116,17 @@ namespace MinioTApp2.ViewModel.ViewModels
             {
                 _selectedBucket = value;
                 RaisePropertyChanged("SelectedBucket");
+            }
+        }
+
+        private MinioItemModel _selectedItem;
+        public MinioItemModel SelectedItem 
+        {
+            get { return _selectedItem; }
+            set
+            {
+                _selectedItem = value;
+                RaisePropertyChanged("SelectedItem");
             }
         }
 
