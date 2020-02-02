@@ -17,6 +17,8 @@ using Windows.UI.Xaml.Controls;
 using Minio.Exceptions;
 using System.Threading;
 using Windows.UI.Xaml;
+using Windows.Storage.Pickers;
+using Windows.Storage;
 
 namespace MinioTApp2.ViewModel.ViewModels
 {
@@ -35,38 +37,6 @@ namespace MinioTApp2.ViewModel.ViewModels
             refreshBucketsList();
         }
 
-        /// Handler for the layout Grid control load event.
-       /* 
-        private void ControlExample_Loaded(object sender, RoutedEventArgs e)
-        {
-            // Create the standard Delete command.
-            var deleteCommand = new StandardUICommand(StandardUICommandKind.Delete);
-            deleteCommand.ExecuteRequested += DeleteItemCommand_ExecuteRequested;
-
-            DeleteFlyoutItem.Command = deleteCommand;
-
-        }
-        */
-        private void DeleteItemCommand_ExecuteRequested(
-            XamlUICommand sender, ExecuteRequestedEventArgs args)
-        {
-            // If possible, remove specfied item from collection.
-            if (args.Parameter != null)
-            {
-                foreach (var i in ItemsM)
-                {
-                    if (i.ItemKey == (args.Parameter as string))
-                    {
-                        ItemsM.Remove(i);
-                        return;
-                    }
-                }
-            }
-            /*if (ListViewRight.SelectedIndex != -1)
-            {
-                ItemsM.RemoveAt(ListViewRight.SelectedIndex);
-            }*/
-        }
 
         private void refreshBucketsList() 
         {
@@ -139,9 +109,45 @@ namespace MinioTApp2.ViewModel.ViewModels
             }
         }
 
+        // T0D0 : RE-IMAGINATE FUNCTION
+        private async void openButton_Click(object sender, RoutedEventArgs e)
+        {
+            FileOpenPicker openPicker = new FileOpenPicker();
+            openPicker.ViewMode = PickerViewMode.Thumbnail;
+            openPicker.SuggestedStartLocation = PickerLocationId.Desktop;
+            openPicker.CommitButtonText = "Открыть";
+            openPicker.FileTypeFilter.Add(".txt");
+            var file = await openPicker.PickSingleFileAsync();
+
+            if (file != null)
+            {
+                
+            }
+        }
+
+        private async void saveButton_Click(object sender, RoutedEventArgs e)
+        {
+            var savePicker = new FileSavePicker();
+            // место для сохранения по умолчанию
+            savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+            // устанавливаем типы файлов для сохранения
+            savePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt" });
+            // устанавливаем имя нового файла по умолчанию
+            savePicker.SuggestedFileName = "New Document";
+            savePicker.CommitButtonText = "Сохранить";
+
+            var new_file = await savePicker.PickSaveFileAsync();
+            if (new_file != null)
+            {
+                //await FileIO.WriteTextAsync(new_file, myTextBox.Text);
+            }
+        }
+
+
         public void GoIntoPath() 
         {
-            var objects = App.Repository.ListObjectsAsync( _selectedItem.ItemKey, null, false);
+            // var objectStat = App.Repository.StatOfObjectAsync(_selectedBucket.BucketName,  _selectedItem.ItemKey);
+            var objects = App.Repository.ListObjectsAsync(_selectedBucket.BucketName,_selectedItem.ItemKey, false);
             ObservableCollection<Item> itemslist = new ObservableCollection<Item>();
             bool complete = false;
             IDisposable subscription = objects.Subscribe(
@@ -162,6 +168,8 @@ namespace MinioTApp2.ViewModel.ViewModels
                 ItemsM.Add(itm);
             }
             List = ItemsM;
+
+
         }
 
 
