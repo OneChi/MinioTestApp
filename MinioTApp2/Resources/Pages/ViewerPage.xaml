@@ -73,6 +73,7 @@
                     x:Phase="2"
                     Style="{ThemeResource BodyTextBlockStyle}"
                     Margin="12,0,0,6"/>
+
             </Grid>
         </DataTemplate>
         <templateSelector:ViewPageTemplateSelector x:Key="TemplateSelector" 
@@ -80,28 +81,35 @@
                                             ItemTemplate="{StaticResource ItemObject}"/>
     </UserControl.Resources>
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+
         <SplitView x:Name="splitView" PaneBackground="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
            IsPaneOpen="True" OpenPaneLength="256" CompactPaneLength="48" DisplayMode="Inline">
             <SplitView.Pane>
                 <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="433*"/>
+                        <RowDefinition Height="20*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="PANE CONTENT" x:Name="PaneHeader" Margin="60,12,0,0" Style="{StaticResource BaseTextBlockStyle}"/>
-                    <ListView x:Name="NavLinksList" Margin="0,12,0,0" 
+                    <TextBlock Text="{x:Bind Mode=OneWay, Path=ViewModel.SelectedBucket.BucketName}" x:Name="PaneHeader" Margin="2,12,0,797" Style="{StaticResource BaseTextBlockStyle}" Grid.RowSpan="2" Grid.Column="1"/>
+                    <ListView x:Name="NavLinksList" Margin="0,12,0,10" 
                               SelectionMode="Single" 
                               SelectedItem="{Binding SelectedBucket,Mode=TwoWay}"
-                              DoubleTapped="{x:Bind ViewModel.ListViewOut_DoubleTapped}"
-                              Grid.Row="1" VerticalAlignment="Stretch"
+                              DoubleTapped="{x:Bind ViewModel.ListViewBuckets_DoubleTapped}"
+                              Grid.Row="1"
                               IsItemClickEnabled="True"
-                              ItemsSource="{x:Bind ViewModel.BucketsM}" ItemTemplate="{StaticResource BucketObject}"/>
-                    <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="14,24,0,24" >
+                              ItemsSource="{x:Bind ViewModel.BucketsM}" ItemTemplate="{StaticResource BucketObject}" Grid.ColumnSpan="2"/>
+                    <ProgressRing x:Name="WorkProgressRing" Grid.Row="2"  IsActive="{Binding ProgressRingState, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="5,5,5,5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+                    <TextBlock TextAlignment="Center" Text="EMPTY PLACEHOLDER" Margin="5,5,5,5" Grid.Column="1" Grid.Row="2"/>
+                    <StackPanel Orientation="Horizontal" Grid.Row="3" Margin="14,24,0,24" Grid.ColumnSpan="2" >
                         <SymbolIcon Symbol="Setting" />
-                        <TextBlock Text="Settings" Margin="24,0,0,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Settings - EXAMPLE"/>
                     </StackPanel>
-                    <TextBlock  Text="{x:Bind Mode=OneWay, Path=ViewModel.SelectedBucket.BucketName}" TextWrapping="Wrap" Margin="14,0,12,17" Grid.Row="1" Height="38" VerticalAlignment="Bottom"><Run Text="Test"/></TextBlock>
                 </Grid>
             </SplitView.Pane>
 
@@ -126,7 +134,9 @@
                            SelectionMode="Single" 
                            SelectedItem="{Binding SelectedItem,Mode=TwoWay}"
                            ItemTemplateSelector="{StaticResource TemplateSelector}" 
-                           ItemsSource="{Binding List}" Grid.RowSpan="2" />
+                           ItemsSource="{Binding List}" Grid.RowSpan="2" 
+                          DoubleTapped="{x:Bind ViewModel.ListViewItems_DoubleTapped}"
+                          />
                 <Button Click="{x:Bind ViewModel.OnRefreshClick}" VerticalAlignment="Bottom" Margin="0,0,40,51" FontSize="16" HorizontalAlignment="Right" Width="69" Height="67" Grid.Row="1" >Refresh</Button>
                 <TextBlock  Text="{x:Bind Mode=OneWay, Path=ViewModel.SelectedItem.ItemKey}" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="30,0,0,28" HorizontalAlignment="Left" Width="1032" Grid.Row="1"><Run Text="Test"/></TextBlock>
 

@@ -35,13 +35,48 @@ namespace MinioTApp2.ViewModel.ViewModels
             refreshBucketsList();
         }
 
+        /// Handler for the layout Grid control load event.
+       /* 
+        private void ControlExample_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Create the standard Delete command.
+            var deleteCommand = new StandardUICommand(StandardUICommandKind.Delete);
+            deleteCommand.ExecuteRequested += DeleteItemCommand_ExecuteRequested;
+
+            DeleteFlyoutItem.Command = deleteCommand;
+
+        }
+        */
+        private void DeleteItemCommand_ExecuteRequested(
+            XamlUICommand sender, ExecuteRequestedEventArgs args)
+        {
+            // If possible, remove specfied item from collection.
+            if (args.Parameter != null)
+            {
+                foreach (var i in ItemsM)
+                {
+                    if (i.ItemKey == (args.Parameter as string))
+                    {
+                        ItemsM.Remove(i);
+                        return;
+                    }
+                }
+            }
+            /*if (ListViewRight.SelectedIndex != -1)
+            {
+                ItemsM.RemoveAt(ListViewRight.SelectedIndex);
+            }*/
+        }
+
         private void refreshBucketsList() 
         {
+            ProgressRingState = true;
             BucketsM.Clear();
             var rep = App.Repository.getListBuckets();
             foreach (var t in rep)
                 BucketsM.Add(t); //
-           //List = BucketsM;
+                                 //List = BucketsM;
+            ProgressRingState = false;
         }
 
         public void OnRefreshClick() 
@@ -49,7 +84,7 @@ namespace MinioTApp2.ViewModel.ViewModels
             refreshBucketsList();
         }
 
-        public void ListViewOut_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        public void ListViewBuckets_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             if (_selectedBucket != null)
             {
@@ -91,10 +126,55 @@ namespace MinioTApp2.ViewModel.ViewModels
         }
 
         public void CommandBarDelete_Click(object sender, RoutedEventArgs e) 
-        { 
-            
+        {
+
         }
 
+        public void ListViewItems_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            if (_selectedBucket != null)
+            {
+                // go in path
+                GoIntoPath();
+            }
+        }
+
+        public void GoIntoPath() 
+        {
+            var objects = App.Repository.ListObjectsAsync( _selectedItem.ItemKey, null, false);
+            ObservableCollection<Item> itemslist = new ObservableCollection<Item>();
+            bool complete = false;
+            IDisposable subscription = objects.Subscribe(
+                    item => itemslist.Add(item),
+                    ex => Console.WriteLine("OnError: {0}", ex.Message),  // error handling
+                    () => complete = true);
+            // Thread.Sleep(1000);
+            while (complete != true)
+            {
+                Thread.Sleep(10);
+            }
+
+
+            ItemsM.Clear();
+            foreach (var item in itemslist)
+            {
+                var itm = new MinioItemModel(item);
+                ItemsM.Add(itm);
+            }
+            List = ItemsM;
+        }
+
+
+        private bool _progressRing = false;
+        public bool ProgressRingState
+        {
+            get { return _progressRing; }
+            set
+            {
+                _progressRing = value;
+                RaisePropertyChanged("ProgressRingState");
+            }
+        }
 
         private string _testString;
         public string TestString 

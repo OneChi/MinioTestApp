@@ -123,6 +123,7 @@
     <Compile Include="Models\MinioBucketModel.cs" />
     <Compile Include="Models\MinioItemModel.cs" />
     <Compile Include="Models\MinioFile.cs" />
+    <Compile Include="Models\MinioObjectStatModel.cs" />
     <Compile Include="Models\MinioUploadModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\MinioTApp2.Model.rd.xml" />
