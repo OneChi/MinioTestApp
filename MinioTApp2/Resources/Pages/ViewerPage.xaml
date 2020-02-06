@@ -80,6 +80,7 @@
                                             BucketTemplate="{StaticResource BucketObject}"
                                             ItemTemplate="{StaticResource ItemObject}"/>
     </UserControl.Resources>
+    
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
 
         <SplitView x:Name="splitView" PaneBackground="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
@@ -96,7 +97,7 @@
                         <RowDefinition Height="20*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="{x:Bind Mode=OneWay, Path=ViewModel.SelectedBucket.BucketName}" x:Name="PaneHeader" Margin="2,12,0,797" Style="{StaticResource BaseTextBlockStyle}" Grid.RowSpan="2" Grid.Column="1"/>
+                    <TextBlock Text="{x:Bind Mode=OneWay, Path=ViewModel.SelectedBucket.BucketName}" x:Name="PaneHeader" Margin="0,0,0,40" Style="{StaticResource BaseTextBlockStyle}" Grid.RowSpan="2" Grid.Column="1" HorizontalAlignment="Center" Width="214" Height="82" VerticalAlignment="Bottom"/>
                     <ListView x:Name="NavLinksList" Margin="0,12,0,10" 
                               SelectionMode="Single" 
                               SelectedItem="{Binding SelectedBucket,Mode=TwoWay}"
@@ -118,8 +119,9 @@
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <CommandBar Grid.Row="0" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" IsSticky="True" Height="40" >
-                    <AppBarButton Icon="Add" Label="Add"/>
+                <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" IsSticky="True" Height="40" Margin="0,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Right" Width="426" >
+                    <AppBarButton Icon="Add" Label="Add" Click="{x:Bind ViewModel.LoadOnServerButton_Click}"/>
+                    <AppBarButton Icon="Save" Label="Save" Click="{x:Bind ViewModel.saveButton_Click}"/>
                     <AppBarButton Icon="Edit" Label="Edit"/>
                     <AppBarButton Icon="Delete" Label="Delete" Click="{x:Bind ViewModel.CommandBarDelete_Click}"/>
                     <CommandBar.SecondaryCommands>
@@ -130,13 +132,15 @@
                         </AppBarButton>
                     </CommandBar.SecondaryCommands>
                 </CommandBar>
+                <AppBarButton Icon="Back" />
                 <ListView Grid.Row="1" x:Name="ListViewOut"  
                            SelectionMode="Single" 
                            SelectedItem="{Binding SelectedItem,Mode=TwoWay}"
-                           ItemTemplateSelector="{StaticResource TemplateSelector}" 
-                           ItemsSource="{Binding List}" Grid.RowSpan="2" 
+                           ItemTemplateSelector="{StaticResource TemplateSelector}" Grid.RowSpan="2" 
                           DoubleTapped="{x:Bind ViewModel.ListViewItems_DoubleTapped}"
-                          />
+                          ItemsSource="{x:Bind ViewModel.ItemsM}" ItemTemplate="{StaticResource ItemObject}">
+
+                </ListView>
                 <Button Click="{x:Bind ViewModel.OnRefreshClick}" VerticalAlignment="Bottom" Margin="0,0,40,51" FontSize="16" HorizontalAlignment="Right" Width="69" Height="67" Grid.Row="1" >Refresh</Button>
                 <TextBlock  Text="{x:Bind Mode=OneWay, Path=ViewModel.SelectedItem.ItemKey}" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="30,0,0,28" HorizontalAlignment="Left" Width="1032" Grid.Row="1"><Run Text="Test"/></TextBlock>
 

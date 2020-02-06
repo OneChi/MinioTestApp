@@ -19,6 +19,8 @@ using System.Threading;
 using Windows.UI.Xaml;
 using Windows.Storage.Pickers;
 using Windows.Storage;
+using System.IO;
+using Windows.Storage.AccessCache;
 
 namespace MinioTApp2.ViewModel.ViewModels
 {
@@ -52,18 +54,23 @@ namespace MinioTApp2.ViewModel.ViewModels
         public void OnRefreshClick() 
         {
             refreshBucketsList();
+           
         }
 
         public void ListViewBuckets_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
             if (_selectedBucket != null)
             {
+                _openedBucket = SelectedBucket;
+                if(_openedHistory.Count > 0)
+                _openedHistory.Clear();
                 LoadListOfItemsInBucket();
             }
         }
 
         public void LoadListOfItemsInBucket() 
         {
+
             var objects = App.Repository.ListObjectsAsync(_selectedBucket.BucketName, null, false);
             ObservableCollection<Item> itemslist = new ObservableCollection<Item>();
             bool complete = false;
@@ -97,7 +104,10 @@ namespace MinioTApp2.ViewModel.ViewModels
 
         public void CommandBarDelete_Click(object sender, RoutedEventArgs e) 
         {
-
+            ProgressRingState = true;
+          var taskDelete = App.Repository.RemoveObjectFromServerAsync(_openedBucket.BucketName, SelectedItem.ItemKey);
+            Task.WaitAll(taskDelete);
+            ProgressRingState = false;
         }
 
         public void ListViewItems_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
@@ -105,27 +115,47 @@ namespace MinioTApp2.ViewModel.ViewModels
             if (_selectedBucket != null)
             {
                 // go in path
+                _openedItem = SelectedItem;
+                _openedHistory.Add(SelectedItem);
                 GoIntoPath();
             }
         }
 
         // T0D0 : RE-IMAGINATE FUNCTION
-        private async void openButton_Click(object sender, RoutedEventArgs e)
+        public async void LoadOnServerButton_Click(object sender, RoutedEventArgs e)
         {
-            FileOpenPicker openPicker = new FileOpenPicker();
-            openPicker.ViewMode = PickerViewMode.Thumbnail;
-            openPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-            openPicker.CommitButtonText = "Открыть";
-            openPicker.FileTypeFilter.Add(".txt");
-            var file = await openPicker.PickSingleFileAsync();
-
-            if (file != null)
+            try
             {
-                
+                FileOpenPicker openPicker = new FileOpenPicker();
+                openPicker.ViewMode = PickerViewMode.Thumbnail;
+                openPicker.SuggestedStartLocation = PickerLocationId.Desktop;
+                openPicker.CommitButtonText = "Открыть";
+                openPicker.FileTypeFilter.Add("*");
+                ProgressRingState = true;
+                var file = await openPicker.PickSingleFileAsync();
+
+                ProgressRingState = false;
+
+                if (file != null)
+                {
+                    var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite);
+                    using (var a = fileStream.AsStream())
+                    {   
+                        ProgressRingState = true;
+                        await App.Repository.PutObjectFromStreamAsync(_openedBucket.BucketName, file.Name, a, a.Length);
+                        ProgressRingState = false;
+                    }
+                    fileStream.Dispose();
+                }
             }
+            catch(Exception exe) 
+            {
+                DisplayWarningDialog(exe.Message);
+            }
+          
         }
 
-        private async void saveButton_Click(object sender, RoutedEventArgs e)
+        public async void saveButton_Click(object sender, RoutedEventArgs e)
         {
             var savePicker = new FileSavePicker();
             // место для сохранения по умолчанию
@@ -135,10 +165,16 @@ namespace MinioTApp2.ViewModel.ViewModels
             // устанавливаем имя нового файла по умолчанию
             savePicker.SuggestedFileName = "New Document";
             savePicker.CommitButtonText = "Сохранить";
-
+            ProgressRingState = true;
             var new_file = await savePicker.PickSaveFileAsync();
+            ProgressRingState = false;
             if (new_file != null)
             {
+               var tsk = App.Repository.GetObjectByFileAsync(_openedBucket.BucketName, SelectedItem.ItemKey,new_file.Name);
+                ProgressRingState = true;
+                // TODO : изменить доступ к файлам
+                Task.WaitAll(tsk);
+                ProgressRingState = false;
                 //await FileIO.WriteTextAsync(new_file, myTextBox.Text);
             }
         }
@@ -195,7 +231,11 @@ namespace MinioTApp2.ViewModel.ViewModels
             }   
 
         }
-
+        // opened state
+        private MinioItemModel _openedItem;
+        private MinioBucketModel _openedBucket;
+        private List<MinioItemModel> _openedHistory = new List<MinioItemModel>();
+        // picked bucket
         private MinioBucketModel _selectedBucket;
         public MinioBucketModel SelectedBucket
         {
@@ -206,7 +246,7 @@ namespace MinioTApp2.ViewModel.ViewModels
                 RaisePropertyChanged("SelectedBucket");
             }
         }
-
+        // picked item
         private MinioItemModel _selectedItem;
         public MinioItemModel SelectedItem 
         {
@@ -243,6 +283,19 @@ namespace MinioTApp2.ViewModel.ViewModels
             Console.WriteLine(string.Format("I'm not handling the {0}.", exceptionToHandle.GetType()));
             //I didn't handle this Exception, return false.
             return false;
+        }
+
+
+        private async void DisplayWarningDialog(string Warning)
+        {
+            ContentDialog noWifiDialog = new ContentDialog()
+            {
+                Title = "Warning",
+                Content = Warning,
+                CloseButtonText = "Ok"
+            };
+
+            await noWifiDialog.ShowAsync();
         }
 
     }

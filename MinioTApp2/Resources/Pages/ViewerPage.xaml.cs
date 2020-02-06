@@ -26,5 +26,9 @@ namespace MinioTApp2.Resources.Pages
 
         }
 
+        private void AppBarButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+
+        }
     }
 }
