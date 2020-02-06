@@ -9,14 +9,15 @@ namespace MinioTApp2.ViewModel.ViewModels
 
         public ObservableCollection<string> buckets { get; set; }
 
-        public MainWindowVM() {
+        public MainWindowVM()
+        {
             buckets = new ObservableCollection<string> {
                "perviy",
                "vtoroy",
                "tretiy"
             };
 
-            
+
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

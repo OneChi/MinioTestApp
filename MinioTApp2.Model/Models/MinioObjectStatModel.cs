@@ -1,9 +1,6 @@
-﻿using System;
+﻿using Minio.DataModel;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Minio.DataModel;
 
 namespace MinioTApp2.Model.Models
 {
@@ -19,12 +16,12 @@ namespace MinioTApp2.Model.Models
 
         public MinioObjectStatModel(ObjectStat ojectStat)
         {
-              ObjectName = ojectStat.ObjectName;
-              Size = ojectStat.Size;
-              LastModified = ojectStat.LastModified;
-              ETag = ojectStat.ETag;
-              ContentType = ojectStat.ContentType;
-              MetaData = ojectStat.MetaData;
+            ObjectName = ojectStat.ObjectName;
+            Size = ojectStat.Size;
+            LastModified = ojectStat.LastModified;
+            ETag = ojectStat.ETag;
+            ContentType = ojectStat.ContentType;
+            MetaData = ojectStat.MetaData;
         }
     }
 }

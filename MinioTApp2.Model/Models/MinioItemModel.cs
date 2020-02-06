@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Minio.DataModel;
-using System.Threading.Tasks;
+﻿using Minio.DataModel;
+using System;
 
 namespace MinioTApp2.Model.Models
 {
     public class MinioItemModel
-    { 
+    {
         public string ItemKey { get; private set; }
         public string Etag { get; private set; }
         public bool ItemIsDir { get; private set; }
@@ -28,7 +24,7 @@ namespace MinioTApp2.Model.Models
 
         }
 
-        public MinioItemModel(Item minioItem) 
+        public MinioItemModel(Item minioItem)
         {
             Etag = minioItem.ETag;
             ItemLastModifiedDate = minioItem.LastModified;

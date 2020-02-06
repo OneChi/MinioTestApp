@@ -1,12 +1,11 @@
-﻿using MinioTApp2.ViewModel.ViewModels;
-using MinioTApp2.Repository.Repository;
+﻿using MinioTApp2.Repository.Repository;
+using MinioTApp2.ViewModel.ViewModels;
 using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
-using System.Security.Permissions;
 
 namespace MinioTApp2
 {
@@ -21,9 +20,9 @@ namespace MinioTApp2
         public static MinioRepository Repository { get; private set; }
 
         public App()
-        { 
-                this.InitializeComponent();
-                this.Suspending += OnSuspending;
+        {
+            this.InitializeComponent();
+            this.Suspending += OnSuspending;
         }
 
         static void MyHandler(object sender, System.UnhandledExceptionEventArgs args)

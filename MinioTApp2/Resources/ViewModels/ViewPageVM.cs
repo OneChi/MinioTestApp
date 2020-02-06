@@ -1,26 +1,19 @@
-﻿using MinioTApp2.Model.Models;
+﻿using Minio.DataModel;
+using MinioTApp2.Model.Models;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using Minio;
-using MinioTApp2;
-using Minio.DataModel;
-using Prism.Mvvm;
-using Prism.Commands;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Controls;
-using Minio.Exceptions;
-using System.Threading;
-using Windows.UI.Xaml;
-using Windows.Storage.Pickers;
-using Windows.Storage;
 using System.IO;
-using Windows.Storage.AccessCache;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
+using System.Web;
 
 namespace MinioTApp2.ViewModel.ViewModels
 {
@@ -30,17 +23,18 @@ namespace MinioTApp2.ViewModel.ViewModels
 
         public ObservableCollection<MinioBucketModel> BucketsM { get; set; }
         public ObservableCollection<MinioItemModel> ItemsM { get; set; }
-        
+
 
         // CONSTRUCTOR
-        public ViewPageVM() {
+        public ViewPageVM()
+        {
             BucketsM = new ObservableCollection<MinioBucketModel>();
             ItemsM = new ObservableCollection<MinioItemModel>();
             refreshBucketsList();
         }
 
 
-        private void refreshBucketsList() 
+        private void refreshBucketsList()
         {
             ProgressRingState = true;
             BucketsM.Clear();
@@ -51,10 +45,10 @@ namespace MinioTApp2.ViewModel.ViewModels
             ProgressRingState = false;
         }
 
-        public void OnRefreshClick() 
+        public void OnRefreshClick()
         {
             refreshBucketsList();
-           
+
         }
 
         public void ListViewBuckets_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
@@ -62,13 +56,13 @@ namespace MinioTApp2.ViewModel.ViewModels
             if (_selectedBucket != null)
             {
                 _openedBucket = SelectedBucket;
-                if(_openedHistory.Count > 0)
-                _openedHistory.Clear();
+                if (_openedHistory.Count > 0)
+                    _openedHistory.Clear();
                 LoadListOfItemsInBucket();
             }
         }
 
-        public void LoadListOfItemsInBucket() 
+        public void LoadListOfItemsInBucket()
         {
 
             var objects = App.Repository.ListObjectsAsync(_selectedBucket.BucketName, null, false);
@@ -84,7 +78,7 @@ namespace MinioTApp2.ViewModel.ViewModels
                 Thread.Sleep(10);
             }
 
-            
+
             ItemsM.Clear();
             foreach (var item in itemslist)
             {
@@ -102,10 +96,10 @@ namespace MinioTApp2.ViewModel.ViewModels
             //TestOut.Text = bucket.Name;
         }
 
-        public void CommandBarDelete_Click(object sender, RoutedEventArgs e) 
+        public void CommandBarDelete_Click(object sender, RoutedEventArgs e)
         {
             ProgressRingState = true;
-          var taskDelete = App.Repository.RemoveObjectFromServerAsync(_openedBucket.BucketName, SelectedItem.ItemKey);
+            var taskDelete = App.Repository.RemoveObjectFromServerAsync(_openedBucket.BucketName, SelectedItem.ItemKey);
             Task.WaitAll(taskDelete);
             ProgressRingState = false;
         }
@@ -140,7 +134,7 @@ namespace MinioTApp2.ViewModel.ViewModels
                 {
                     var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite);
                     using (var a = fileStream.AsStream())
-                    {   
+                    {
                         ProgressRingState = true;
                         await App.Repository.PutObjectFromStreamAsync(_openedBucket.BucketName, file.Name, a, a.Length);
                         ProgressRingState = false;
@@ -148,42 +142,67 @@ namespace MinioTApp2.ViewModel.ViewModels
                     fileStream.Dispose();
                 }
             }
-            catch(Exception exe) 
+            catch (Exception exe)
             {
                 DisplayWarningDialog(exe.Message);
             }
-          
+
         }
 
         public async void saveButton_Click(object sender, RoutedEventArgs e)
         {
-            var savePicker = new FileSavePicker();
-            // место для сохранения по умолчанию
-            savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-            // устанавливаем типы файлов для сохранения
-            savePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt" });
-            // устанавливаем имя нового файла по умолчанию
-            savePicker.SuggestedFileName = "New Document";
-            savePicker.CommitButtonText = "Сохранить";
-            ProgressRingState = true;
-            var new_file = await savePicker.PickSaveFileAsync();
-            ProgressRingState = false;
-            if (new_file != null)
+            try
             {
-               var tsk = App.Repository.GetObjectByFileAsync(_openedBucket.BucketName, SelectedItem.ItemKey,new_file.Name);
+
+                var objStat = await App.Repository.StatOfObjectAsync(_openedBucket.BucketName, SelectedItem.ItemKey);
+               var exten = System.IO.Path.GetExtension(objStat.ObjectName);
+                var savePicker = new FileSavePicker();
+                
+                // место для сохранения по умолчанию
+                savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+                // устанавливаем типы файлов для сохранения
+
+                savePicker.FileTypeChoices.Add(exten, new List<string>() { exten });
+                // устанавливаем имя нового файла по умолчанию
+                savePicker.SuggestedFileName = "New Document";
+                savePicker.CommitButtonText = "Сохранить";
                 ProgressRingState = true;
-                // TODO : изменить доступ к файлам
-                Task.WaitAll(tsk);
+                var new_file = await savePicker.PickSaveFileAsync();
                 ProgressRingState = false;
-                //await FileIO.WriteTextAsync(new_file, myTextBox.Text);
+                if (new_file != null)
+                {
+                    var randomAccessStream = await new_file.OpenAsync(FileAccessMode.ReadWrite);
+                    using (var fileSream = randomAccessStream.AsStream())
+                    {
+                        ProgressRingState = true;
+                        var tsk = App.Repository.GetObjectAsStreamAsync(_openedBucket.BucketName, SelectedItem.ItemKey,(stream) => 
+                        {
+
+                            //StreamReader reader = new StreamReader(stream, Encoding.UTF8);
+                            stream.CopyTo(fileSream); //= reader.ReadToEnd();
+                           
+                        });
+                        Task.WaitAll(tsk);
+                        ProgressRingState = false;
+                       
+                    }
+                    randomAccessStream.Dispose();
+                    //await FileIO.WriteTextAsync(new_file, myTextBox.Text);
+                }
+            }
+            catch (Exception exe)
+            {
+                DisplayWarningDialog(exe.Message);
             }
         }
 
 
-        public void GoIntoPath() 
+
+
+        public void GoIntoPath()
         {
             // var objectStat = App.Repository.StatOfObjectAsync(_selectedBucket.BucketName,  _selectedItem.ItemKey);
-            var objects = App.Repository.ListObjectsAsync(_selectedBucket.BucketName,_selectedItem.ItemKey, false);
+            var objects = App.Repository.ListObjectsAsync(_selectedBucket.BucketName, _selectedItem.ItemKey, false);
             ObservableCollection<Item> itemslist = new ObservableCollection<Item>();
             bool complete = false;
             IDisposable subscription = objects.Subscribe(
@@ -221,14 +240,14 @@ namespace MinioTApp2.ViewModel.ViewModels
         }
 
         private string _testString;
-        public string TestString 
+        public string TestString
         {
             get { return _testString; }
             set
-            { 
+            {
                 _testString = value;
-                RaisePropertyChanged("TestString"); 
-            }   
+                RaisePropertyChanged("TestString");
+            }
 
         }
         // opened state
@@ -248,7 +267,7 @@ namespace MinioTApp2.ViewModel.ViewModels
         }
         // picked item
         private MinioItemModel _selectedItem;
-        public MinioItemModel SelectedItem 
+        public MinioItemModel SelectedItem
         {
             get { return _selectedItem; }
             set

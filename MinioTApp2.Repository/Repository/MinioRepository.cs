@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Minio;
+﻿using Minio;
 using Minio.DataModel;
 using Minio.Exceptions;
 using MinioTApp2.Model.Models;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MinioTApp2.Repository.Repository
 {
@@ -31,7 +29,8 @@ namespace MinioTApp2.Repository.Repository
         }
 
         // Returns ObservableCollection of "Buckets"(MinioTApp2.Models.Models.Buckets) which stored on remote server
-        public ObservableCollection<MinioBucketModel> getListBuckets() {
+        public ObservableCollection<MinioBucketModel> getListBuckets()
+        {
             ObservableCollection<MinioBucketModel> buckets = new ObservableCollection<MinioBucketModel>();
 
             // Start function in other thread
@@ -57,7 +56,8 @@ namespace MinioTApp2.Repository.Repository
         //  BUCKET OPERATIONS
 
         // true - bucket was created | false - bucket already exists
-        public async Task<Boolean> CreateBucketIfExistAsync(String BucketName) {
+        public async Task<Boolean> CreateBucketIfExistAsync(String BucketName)
+        {
             try
             {
                 // Create bucket if it doesn't exist.
@@ -76,7 +76,8 @@ namespace MinioTApp2.Repository.Repository
             catch (MinioException e) { throw; }
         }
         // true - bucket found false - bucket not found
-        public async Task<Boolean> BucketNameExistsAsync(String BucketName) {
+        public async Task<Boolean> BucketNameExistsAsync(String BucketName)
+        {
             try
             {
                 // Check whether 'my-bucketname' exists or not.
@@ -269,10 +270,7 @@ namespace MinioTApp2.Repository.Repository
                 Task.WaitAll(taskStatObject);
                 // Get input stream to have content of 'my-objectname' from 'my-bucketname'
                 var taskGetObject = minio.GetObjectAsync(bucketName, objectName,
-                                                 (stream) =>
-                                                 {
-                                                     stream.CopyTo(Console.OpenStandardOutput());
-                                                 }, sse, cancellationToken);
+                                                 callback, sse, cancellationToken);
                 return taskGetObject;
             }
             catch (MinioException e)
@@ -293,10 +291,7 @@ namespace MinioTApp2.Repository.Repository
                 Task.WaitAll(taskStatObj);
                 // Get input stream to have content of 'my-objectname' from 'my-bucketname'
                 var taskGetObj = minio.GetObjectAsync(bucketName, objectName, offset, length,
-                                                 (stream) =>
-                                                 {
-                                                     stream.CopyTo(Console.OpenStandardOutput());
-                                                 }, sse, cancellationToken);
+                                                 callback, sse, cancellationToken);
                 return taskGetObj;
             }
             catch (MinioException e)
@@ -383,7 +378,7 @@ namespace MinioTApp2.Repository.Repository
             try
             {
                 // Get the metadata of the object.
-                var objectStat = minio.StatObjectAsync("mybucket", "myobject");
+                var objectStat = minio.StatObjectAsync(bucketName, objectName,sse,cancellationToken);
                 return objectStat;
             }
             catch (MinioException e)
@@ -423,7 +418,7 @@ namespace MinioTApp2.Repository.Repository
             try
             {
                 // Remove objectname from the bucket my-bucketname.
-                var taskRemoveObj = minio.RemoveObjectAsync(bucketName,objectName);
+                var taskRemoveObj = minio.RemoveObjectAsync(bucketName, objectName);
                 return taskRemoveObj;
             }
             catch (MinioException e)
@@ -443,7 +438,7 @@ namespace MinioTApp2.Repository.Repository
 
 
                 // Remove list of objects in objectNames from the bucket bucketName.
-                var observable =  minio.RemoveObjectAsync(bucketName, objectsList,cancellationToken);
+                var observable = minio.RemoveObjectAsync(bucketName, objectsList, cancellationToken);
 
                 return observable;
                 /*IDisposable subscription = observable.Subscribe(
@@ -473,10 +468,10 @@ namespace MinioTApp2.Repository.Repository
                 throw;
             }
         }
-       
+
         //  TODO:   PRESIGNED OPERATIONS - ? am i need this
 
-        public static void LoadMinio() 
+        public static void LoadMinio()
         {
             /*minio server ip =*/
             var MinioServerAddres = "83.149.198.59:9000";
@@ -485,7 +480,7 @@ namespace MinioTApp2.Repository.Repository
             /*minio server secret key/ password =*/
             var MinioPassword = "miniominio";
             // set up minio client
-            minio = new MinioClient(MinioServerAddres,MinioLogin,MinioPassword);
+            minio = new MinioClient(MinioServerAddres, MinioLogin, MinioPassword);
         }
         // HANDLING EXCEPTIONS
         private static bool HandleBatchExceptions(Exception exceptionToHandle)
