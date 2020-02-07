@@ -59,7 +59,7 @@ namespace MinioTApp2.ViewModel.ViewModels
         {
             if (_selectedBucket != null)
             {
-               // _openedBucket = SelectedBucket;
+                // _openedBucket = SelectedBucket;
                 if (_openedHistory.Count > 0)
                     _openedHistory.Clear();
                 LoadListOfItemsInBucket(_selectedBucket);
@@ -106,7 +106,10 @@ namespace MinioTApp2.ViewModel.ViewModels
             var taskDelete = App.Repository.RemoveObjectFromServerAsync(_openedBucket.BucketName, SelectedItem.ItemKey);
             Task.WaitAll(taskDelete);
             ProgressRingState = false;
-            GoIntoPath(_openedBucket, _openedHistory[_openedHistory.Count - 1]);
+            if (_openedHistory.Count > 0)
+                GoIntoPath(_openedBucket, _openedHistory[_openedHistory.Count - 1]);
+            else
+                LoadListOfItemsInBucket(_openedBucket);
         }
 
         public void ListViewItems_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
@@ -134,12 +137,12 @@ namespace MinioTApp2.ViewModel.ViewModels
                     _openedHistory.RemoveAt(_openedHistory.Count - 1);
                     GoIntoPath(_openedBucket, _openedHistory[_openedHistory.Count - 1]);
                 }
-                else if (_openedHistory.Count == 1) 
+                else if (_openedHistory.Count == 1)
                 {
                     _openedHistory.Clear();
                     LoadListOfItemsInBucket(_openedBucket);
                 }
-            } catch( Exception exe) 
+            } catch (Exception exe)
             {
                 DisplayWarningDialog("Restart application please. There some error with navigation");
             }
@@ -196,16 +199,18 @@ namespace MinioTApp2.ViewModel.ViewModels
                         String newFileName = "";
                         ProgressRingState = true;
                         if (_openedHistory.Count > 0)
-                        {
                             newFileName = _openedHistory[_openedHistory.Count - 1].ItemKey + file.Name;
-                        }
+                        else
+                            newFileName = file.Name;
 
                         await App.Repository.PutObjectFromStreamAsync(_openedBucket.BucketName, newFileName, a, a.Length);
                         ProgressRingState = false;
                     }
                     fileStream.Dispose();
-
-                    GoIntoPath(_openedBucket, _openedHistory[_openedHistory.Count-1]);
+                    if (_openedHistory.Count > 0)
+                        GoIntoPath(_openedBucket, _openedHistory[_openedHistory.Count - 1]);
+                    else
+                        LoadListOfItemsInBucket(_openedBucket);
 
                 }
             }
@@ -222,9 +227,9 @@ namespace MinioTApp2.ViewModel.ViewModels
             {
 
                 var objStat = await App.Repository.StatOfObjectAsync(_openedBucket.BucketName, SelectedItem.ItemKey);
-               var exten = System.IO.Path.GetExtension(objStat.ObjectName);
+                var exten = System.IO.Path.GetExtension(objStat.ObjectName);
                 var savePicker = new FileSavePicker();
-                
+
                 // место для сохранения по умолчанию
                 savePicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
                 // устанавливаем типы файлов для сохранения
@@ -242,16 +247,16 @@ namespace MinioTApp2.ViewModel.ViewModels
                     using (var fileSream = randomAccessStream.AsStream())
                     {
                         ProgressRingState = true;
-                        var tsk = App.Repository.GetObjectAsStreamAsync(_openedBucket.BucketName, SelectedItem.ItemKey,(stream) => 
-                        {
+                        var tsk = App.Repository.GetObjectAsStreamAsync(_openedBucket.BucketName, SelectedItem.ItemKey, (stream) =>
+                         {
 
                             //StreamReader reader = new StreamReader(stream, Encoding.UTF8);
                             stream.CopyTo(fileSream); //= reader.ReadToEnd();
-                           
+
                         });
                         Task.WaitAll(tsk);
                         ProgressRingState = false;
-                       
+
                     }
                     randomAccessStream.Dispose();
                     //await FileIO.WriteTextAsync(new_file, myTextBox.Text);
@@ -263,10 +268,39 @@ namespace MinioTApp2.ViewModel.ViewModels
             }
         }
 
-        public async void createNewFolderInBucket(string folderName) 
+
+        public async void createNewFolderInBucket_Click(object sender, RoutedEventArgs e) 
+        {
+            createNewFolderInBucket(_fileFolderName);
+
+           // createNewFolderInBucket();
+        }
+
+        private async void createNewFolderInBucket(string folderName) 
         {
             try
             {
+                Windows.Storage.StorageFolder storageFolder =
+                Windows.Storage.ApplicationData.Current.LocalFolder;
+                Windows.Storage.StorageFile sampleFile =
+                await storageFolder.CreateFileAsync("placeholder.txt",
+                Windows.Storage.CreationCollisionOption.ReplaceExisting);
+                var fileStream = await sampleFile.OpenAsync(FileAccessMode.ReadWrite);
+                using (var stream = fileStream.AsStream())
+                {
+
+                    String newFileName = "";
+                    if (_openedHistory.Count > 0)
+                        newFileName = _openedHistory[_openedHistory.Count - 1].ItemKey + folderName + "/";
+                    else
+                        newFileName = folderName + "/";
+                    await App.Repository.PutObjectFromStreamAsync(_openedBucket.BucketName, newFileName, stream, stream.Length);
+                }
+                fileStream.Dispose();
+                if (_openedHistory.Count > 0)
+                    GoIntoPath(_openedBucket, _openedHistory[_openedHistory.Count - 1]);
+                else
+                    LoadListOfItemsInBucket(_openedBucket);
 
             } catch (Exception exe) 
             {
@@ -287,6 +321,17 @@ namespace MinioTApp2.ViewModel.ViewModels
             {
                 _progressRing = value;
                 RaisePropertyChanged("ProgressRingState");
+            }
+        }
+
+        private string _fileFolderName = "";
+        public string FileFolderName 
+        {
+            get { return _fileFolderName; }
+            set
+            {
+                _fileFolderName = value;
+                RaisePropertyChanged("FileFolderName");
             }
         }
 

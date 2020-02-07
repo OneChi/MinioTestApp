@@ -119,10 +119,20 @@
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" IsSticky="True" Height="40" Margin="726,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Width="508" >
+                <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" IsSticky="True" Height="40" VerticalAlignment="Center" HorizontalAlignment="Right" Width="508" >
                     <AppBarButton Icon="Add" Label="Add" Click="{x:Bind ViewModel.LoadOnServerButton_Click}"/>
                     <AppBarButton Icon="Save" Label="Save" Click="{x:Bind ViewModel.saveButton_Click}"/>
-                    <AppBarButton Icon="NewFolder" Label="New folder" />
+                    <AppBarButton Icon="NewFolder" Label="New folder" AllowFocusOnInteraction="True" >
+                        <Button.Flyout>
+                            <Flyout>
+                                <StackPanel>
+                                    <TextBox Text="{x:Bind ViewModel.FileFolderName, Mode=TwoWay}"  Margin="0,0,0,12" PlaceholderText="Folder name" />
+                                    <Button Click="{x:Bind ViewModel.createNewFolderInBucket_Click}" Content="Create Folder" />
+                                </StackPanel>
+                            </Flyout>
+                        </Button.Flyout>
+
+                    </AppBarButton>
                     <AppBarButton Icon="Edit" Label="Edit"/>
                     <AppBarButton Icon="Delete" Label="Delete" Click="{x:Bind ViewModel.CommandBarDelete_Click}"/>
                     <CommandBar.SecondaryCommands>
@@ -144,7 +154,6 @@
                 </ListView>
                 <Button Click="{x:Bind ViewModel.OnRefreshClick}" VerticalAlignment="Bottom" Margin="0,0,40,51" FontSize="16" HorizontalAlignment="Right" Width="69" Height="67" Grid.Row="1" >Refresh</Button>
                 <TextBlock  Text="{x:Bind Mode=OneWay, Path=ViewModel.SelectedItem.ItemKey}" TextWrapping="Wrap" VerticalAlignment="Bottom" Height="38" Margin="30,0,0,28" HorizontalAlignment="Left" Width="1032" Grid.Row="1"><Run Text="Test"/></TextBlock>
-
             </Grid>
         </SplitView>
 
