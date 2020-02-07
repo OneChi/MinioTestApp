@@ -80,7 +80,7 @@
                                             BucketTemplate="{StaticResource BucketObject}"
                                             ItemTemplate="{StaticResource ItemObject}"/>
     </UserControl.Resources>
-    
+
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
 
         <SplitView x:Name="splitView" PaneBackground="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}"
@@ -119,9 +119,10 @@
                     <RowDefinition Height="40"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" IsSticky="True" Height="40" Margin="0,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Right" Width="426" >
+                <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" IsSticky="True" Height="40" Margin="726,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Width="508" >
                     <AppBarButton Icon="Add" Label="Add" Click="{x:Bind ViewModel.LoadOnServerButton_Click}"/>
                     <AppBarButton Icon="Save" Label="Save" Click="{x:Bind ViewModel.saveButton_Click}"/>
+                    <AppBarButton Icon="NewFolder" Label="New folder" />
                     <AppBarButton Icon="Edit" Label="Edit"/>
                     <AppBarButton Icon="Delete" Label="Delete" Click="{x:Bind ViewModel.CommandBarDelete_Click}"/>
                     <CommandBar.SecondaryCommands>
@@ -132,7 +133,7 @@
                         </AppBarButton>
                     </CommandBar.SecondaryCommands>
                 </CommandBar>
-                <AppBarButton Icon="Back" />
+                <AppBarButton Icon="Back" Click="{x:Bind ViewModel.backButtonClick}" />
                 <ListView Grid.Row="1" x:Name="ListViewOut"  
                            SelectionMode="Single" 
                            SelectedItem="{Binding SelectedItem,Mode=TwoWay}"

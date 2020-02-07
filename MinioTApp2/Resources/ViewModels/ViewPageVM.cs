@@ -31,6 +31,10 @@ namespace MinioTApp2.ViewModel.ViewModels
             BucketsM = new ObservableCollection<MinioBucketModel>();
             ItemsM = new ObservableCollection<MinioItemModel>();
             refreshBucketsList();
+            if (BucketsM.Count > 0)
+                _selectedBucket = BucketsM[0];
+            LoadListOfItemsInBucket(_selectedBucket);
+
         }
 
 
@@ -55,17 +59,17 @@ namespace MinioTApp2.ViewModel.ViewModels
         {
             if (_selectedBucket != null)
             {
-                _openedBucket = SelectedBucket;
+               // _openedBucket = SelectedBucket;
                 if (_openedHistory.Count > 0)
                     _openedHistory.Clear();
-                LoadListOfItemsInBucket();
+                LoadListOfItemsInBucket(_selectedBucket);
             }
         }
 
-        public void LoadListOfItemsInBucket()
+        public void LoadListOfItemsInBucket(MinioBucketModel openingBucket)
         {
-
-            var objects = App.Repository.ListObjectsAsync(_selectedBucket.BucketName, null, false);
+            _openedBucket = openingBucket;
+            var objects = App.Repository.ListObjectsAsync(openingBucket.BucketName, null, false);
             ObservableCollection<Item> itemslist = new ObservableCollection<Item>();
             bool complete = false;
             IDisposable subscription = objects.Subscribe(
@@ -102,20 +106,74 @@ namespace MinioTApp2.ViewModel.ViewModels
             var taskDelete = App.Repository.RemoveObjectFromServerAsync(_openedBucket.BucketName, SelectedItem.ItemKey);
             Task.WaitAll(taskDelete);
             ProgressRingState = false;
+            GoIntoPath(_openedBucket, _openedHistory[_openedHistory.Count - 1]);
         }
 
         public void ListViewItems_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            if (_selectedBucket != null)
+            if (_openedBucket != null)
             {
-                // go in path
-                _openedItem = SelectedItem;
-                _openedHistory.Add(SelectedItem);
-                GoIntoPath();
+                if (_selectedItem.ItemIsDir)
+                {
+                    // go in path
+                    _openedItem = SelectedItem;
+                    _openedHistory.Add(SelectedItem);
+                    GoIntoPath(_openedBucket, _selectedItem);
+                }
             }
         }
 
-        // T0D0 : RE-IMAGINATE FUNCTION
+
+
+        public void backButtonClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (_openedHistory.Count > 1)
+                {
+                    _openedHistory.RemoveAt(_openedHistory.Count - 1);
+                    GoIntoPath(_openedBucket, _openedHistory[_openedHistory.Count - 1]);
+                }
+                else if (_openedHistory.Count == 1) 
+                {
+                    _openedHistory.Clear();
+                    LoadListOfItemsInBucket(_openedBucket);
+                }
+            } catch( Exception exe) 
+            {
+                DisplayWarningDialog("Restart application please. There some error with navigation");
+            }
+
+        }
+
+        public void GoIntoPath(MinioBucketModel openedBucket, MinioItemModel openingItem)
+        {
+            // var objectStat = App.Repository.StatOfObjectAsync(_selectedBucket.BucketName,  _selectedItem.ItemKey);
+            var objects = App.Repository.ListObjectsAsync(openedBucket.BucketName, openingItem.ItemKey, false);
+            ObservableCollection<Item> itemslist = new ObservableCollection<Item>();
+            bool complete = false;
+            IDisposable subscription = objects.Subscribe(
+                    item => itemslist.Add(item),
+                    ex => Console.WriteLine("OnError: {0}", ex.Message),  // error handling
+                    () => complete = true);
+            // Thread.Sleep(1000);
+            while (complete != true)
+            {
+                Thread.Sleep(10);
+            }
+
+
+            ItemsM.Clear();
+            foreach (var item in itemslist)
+            {
+                var itm = new MinioItemModel(item);
+                ItemsM.Add(itm);
+            }
+            List = ItemsM;
+
+
+        }
+
         public async void LoadOnServerButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -135,11 +193,20 @@ namespace MinioTApp2.ViewModel.ViewModels
                     var fileStream = await file.OpenAsync(FileAccessMode.ReadWrite);
                     using (var a = fileStream.AsStream())
                     {
+                        String newFileName = "";
                         ProgressRingState = true;
-                        await App.Repository.PutObjectFromStreamAsync(_openedBucket.BucketName, file.Name, a, a.Length);
+                        if (_openedHistory.Count > 0)
+                        {
+                            newFileName = _openedHistory[_openedHistory.Count - 1].ItemKey + file.Name;
+                        }
+
+                        await App.Repository.PutObjectFromStreamAsync(_openedBucket.BucketName, newFileName, a, a.Length);
                         ProgressRingState = false;
                     }
                     fileStream.Dispose();
+
+                    GoIntoPath(_openedBucket, _openedHistory[_openedHistory.Count-1]);
+
                 }
             }
             catch (Exception exe)
@@ -196,36 +263,20 @@ namespace MinioTApp2.ViewModel.ViewModels
             }
         }
 
-
-
-
-        public void GoIntoPath()
+        public async void createNewFolderInBucket(string folderName) 
         {
-            // var objectStat = App.Repository.StatOfObjectAsync(_selectedBucket.BucketName,  _selectedItem.ItemKey);
-            var objects = App.Repository.ListObjectsAsync(_selectedBucket.BucketName, _selectedItem.ItemKey, false);
-            ObservableCollection<Item> itemslist = new ObservableCollection<Item>();
-            bool complete = false;
-            IDisposable subscription = objects.Subscribe(
-                    item => itemslist.Add(item),
-                    ex => Console.WriteLine("OnError: {0}", ex.Message),  // error handling
-                    () => complete = true);
-            // Thread.Sleep(1000);
-            while (complete != true)
+            try
             {
-                Thread.Sleep(10);
-            }
 
-
-            ItemsM.Clear();
-            foreach (var item in itemslist)
+            } catch (Exception exe) 
             {
-                var itm = new MinioItemModel(item);
-                ItemsM.Add(itm);
+                DisplayWarningDialog(exe.Message);
             }
-            List = ItemsM;
-
 
         }
+
+
+
 
 
         private bool _progressRing = false;
